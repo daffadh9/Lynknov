@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getFirstName, formatCount } from '@/lib/utils'
 import Link from 'next/link'
 import { signOut } from '@/features/auth/actions'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'Dashboard',
@@ -11,6 +12,12 @@ export const metadata = {
 export default async function DashboardPage() {
   const user = await requireAuth()
   const profile = await getUserProfile()
+
+  // Onboarding enforcement (moved from proxy per Next.js 16 best practices)
+  if (!profile || profile.is_onboarded === false) {
+    redirect('/onboarding')
+  }
+
   const completeness = getProfileCompleteness(profile)
 
   // Fetch page stats

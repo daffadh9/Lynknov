@@ -7,6 +7,7 @@ import { signUpWithEmail } from '@/features/auth/actions'
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [confirmEmail, setConfirmEmail] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -17,7 +18,30 @@ export default function SignUpPage() {
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.confirmEmail) {
+      setConfirmEmail(true)
+      setLoading(false)
     }
+  }
+
+  // Confirmation email sent — show success state
+  if (confirmEmail) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center px-6">
+        <div className="w-full max-w-sm text-center">
+          <div className="mb-4 text-4xl">📬</div>
+          <h1 className="mb-2 text-xl font-bold text-white">Check your email</h1>
+          <p className="text-sm text-gray-400">
+            We sent a confirmation link to your email address. Click it to activate
+            your account, then{' '}
+            <Link href="/auth/login" className="text-purple-400 hover:underline">
+              sign in here
+            </Link>
+            .
+          </p>
+        </div>
+      </main>
+    )
   }
 
   return (

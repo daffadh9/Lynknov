@@ -32,17 +32,25 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Protect dashboard and onboarding routes
-  const protectedPaths = ['/dashboard', '/onboarding']
-  const isProtected = protectedPaths.some((p) => pathname.startsWith(p))
+  // --- Unauthenticated guard ---
+  // Protect dashboard routes only (not /onboarding — it handles its own auth via requireAuth)
+  const dashboardPaths = ['/dashboard']
+  const isDashboardRoute = dashboardPaths.some((p) => pathname.startsWith(p))
 
-  if (!user && isProtected) {
+  if (!user && isDashboardRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
     return NextResponse.redirect(url)
   }
 
-  // Redirect logged-in users away from auth pages
+  // /onboarding: must be logged in
+  if (!user && pathname.startsWith('/onboarding')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/login'
+    return NextResponse.redirect(url)
+  }
+
+  // --- Redirect logged-in users away from auth pages ---
   const authPaths = ['/auth/login', '/auth/signup']
   const isAuthPage = authPaths.some((p) => pathname.startsWith(p))
 
@@ -50,6 +58,30 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
+  }
+
+  // --- Onboarding enforcement ---
+  // If logged in and hitting /dashboard, check if onboarding is complete
+  if (user && isDashboardRoute) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_onboarded')
+      .eq('id', user.id)
+      .single()
+
+    // Profile exists but not onboarded → send to onboarding
+    if (profile && profile.is_onboarded === false) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
+
+    // No profile row at all → unusual, also send to onboarding
+    if (!profile) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

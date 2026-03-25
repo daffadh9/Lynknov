@@ -28,6 +28,7 @@ export async function signUpWithEmail(formData: FormData) {
     password,
     options: {
       data: { full_name: fullName },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
   })
 
@@ -35,13 +36,24 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: error.message }
   }
 
+  // If session is null, Supabase requires email confirmation before login.
+  if (!data.session) {
+    return {
+      confirmEmail: true,
+      message: 'Check your email to confirm your account before signing in.',
+    }
+  }
+
+  // Session exists (email confirmation disabled) — create profile row & go to onboarding
   if (data.user) {
-    // Upsert profile row (mirror of auth.users)
-    await supabase.from('profiles').upsert({
-      id: data.user.id,
-      full_name: fullName,
-      is_onboarded: false,
-    })
+    await supabase.from('profiles').upsert(
+      {
+        id: data.user.id,
+        full_name: fullName,
+        is_onboarded: false,
+      },
+      { onConflict: 'id' },
+    )
   }
 
   redirect('/onboarding')
