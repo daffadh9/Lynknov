@@ -263,7 +263,7 @@ The repository is intended to reflect a workflow where strategy, system thinking
 
 ## Tech Direction
 
-The project currently uses a web application stack centered around:
+The project currently uses a web application modern stack centered around:
 
 - Next.js
 - TypeScript
