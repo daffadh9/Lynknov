@@ -121,6 +121,10 @@ The product is being shaped around the following experience principles:
 - **modern but disciplined**
 - **designed for trust and conversion**
 - **usable by independent builders, not only teams**
+- **Premium Aesthetics: Not just functional, but visually immersive**
+- **Tactile Feedback: Every interaction feels alive and intentional**
+- **Strategic Clarity: Moving from noisy interfaces to curated experiences**
+- **Agentic Execution: Built with high-speed AI workflows without sacrificing craft**
 
 ---
 
@@ -256,6 +260,7 @@ Lynknov is being built with a modern AI-assisted workflow that combines:
 - architectural review
 - repo-level professionalism
 - long-term maintainability
+- Vibe-Driven Development: Combining strategic reasoning with agentic IDEs to build at the speed of thought, ensuring every pixel and line of code has purpose.
 
 The repository is intended to reflect a workflow where strategy, system thinking, design direction, and implementation evolve together instead of being treated as disconnected activities.
 
