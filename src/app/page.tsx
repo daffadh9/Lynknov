@@ -18,6 +18,7 @@ import {
   Star,
   Play
 } from "lucide-react";
+import { RevealWrapper } from "@/components/animations/RevealWrapper";
 
 export default function HomePage() {
   return (
@@ -69,11 +70,11 @@ export default function HomePage() {
           </div>
 
           <div className="max-w-[1300px] mx-auto px-6 lg:px-12 relative z-10">
-            {/* Asymmetrical Grid: 1fr text, 1.2fr visual to give preview dominance */}
-            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-8 items-center">
+            {/* Asymmetrical Grid: 1fr text, 1fr visual to give preview balance */}
+            <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-16 items-center">
               
               {/* Kiri: Copy (Cinematic & Deep, Pushed slightly inward) */}
-              <div className="max-w-xl relative lg:pl-4" style={{ animation: "var(--animate-fade-up)" }}>
+              <RevealWrapper direction="up" delay={0.1} className="max-w-xl relative lg:pl-4">
                 {/* Text Badge */}
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-[11px] font-medium text-white/80 mb-8 shadow-sm">
                   <span className="flex h-2 w-2 relative">
@@ -115,128 +116,130 @@ export default function HomePage() {
                   </div>
                   <p>Bergabung dengan 1.000+ profesional</p>
                 </div>
-              </div>
+              </RevealWrapper>
               
               {/* Kanan: Cinematic Product Preview (Massive, Overlapping, Layered) */}
-              <div className="relative w-full h-[500px] lg:h-[700px] perspective-1500 mt-12 lg:mt-0" style={{ animation: "var(--animate-fade-in) 1s ease-out 0.2s forwards" }}>
-                
-                {/* Immersive bleed container */}
-                <div className="absolute inset-0 transform rotate-y-[-10deg] rotate-x-[5deg] translate-x-4 lg:translate-x-16 lg:scale-110" style={{ animation: "var(--animate-float) 8s ease-in-out infinite" }}>
+              <RevealWrapper direction="up" delay={0.2} duration={1}>
+                <div className="relative w-full h-[500px] lg:h-[700px] perspective-1500 mt-12 lg:mt-0">
                   
-                  {/* Backdrop blur layer to simulate depth of field */}
-                  <div className="absolute top-10 -left-10 w-[120%] h-[120%] bg-white/[0.01] blur-xl rounded-full pointer-events-none"></div>
-
-                  {/* Main Product Device Frame */}
-                  <div className="absolute w-[360px] lg:w-[400px] h-[700px] lg:h-[780px] left-1/2 -translate-x-1/2 top-0 rounded-[32px] bg-[#0a0a0b] border-[8px] border-[#1a1a1d] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9),inset_0_0_0_1px_rgba(255,255,255,0.1)] overflow-hidden flex flex-col">
+                  {/* Immersive bleed container */}
+                  <div className="absolute inset-0 transform rotate-y-[-10deg] rotate-x-[5deg] translate-x-8 lg:translate-x-24 lg:scale-110" style={{ animation: "var(--animate-float) 8s ease-in-out infinite" }}>
                     
-                    {/* Device Status Bar */}
-                    <div className="w-full h-8 flex justify-between items-center px-6 pt-2 bg-black/40">
-                      <div className="w-12 h-3 rounded-full bg-white/10"></div>
-                      <div className="w-16 h-4 rounded-full bg-black"></div>
-                      <div className="flex gap-1">
-                        <div className="w-3 h-3 rounded-full bg-white/10"></div>
-                        <div className="w-5 h-3 rounded-full bg-white/10"></div>
-                      </div>
-                    </div>
-
-                    {/* App Content */}
-                    <div className="flex-1 bg-gradient-to-b from-[#121214] to-[#0a0a0b] p-6 relative overflow-y-hidden">
-                      {/* Top banner glow inside device */}
-                      <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+                    {/* Backdrop blur layer to simulate depth of field */}
+                    <div className="absolute top-10 -left-10 w-[120%] h-[120%] bg-white/[0.01] blur-xl rounded-full pointer-events-none"></div>
+  
+                    {/* Main Product Device Frame */}
+                    <div className="absolute w-[360px] lg:w-[400px] h-[700px] lg:h-[780px] left-1/2 -translate-x-1/2 top-0 rounded-[32px] bg-[#0a0a0b] border-[8px] border-[#1a1a1d] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.9),inset_0_0_0_1px_rgba(255,255,255,0.1)] overflow-hidden flex flex-col">
                       
-                      {/* Profile Section */}
-                      <div className="flex flex-col items-center text-center mt-6 mb-8 relative z-10">
-                        <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-white/20 to-white/5 p-[2px] mb-4 shadow-lg">
-                          <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                            <User className="w-8 h-8 text-white/30" />
-                          </div>
-                        </div>
-                        <div className="w-40 h-6 rounded-md bg-white/90 mb-2"></div>
-                        <div className="w-28 h-4 rounded-md bg-white/40 mb-4"></div>
-                        <div className="flex gap-2">
-                          <div className="w-20 h-8 rounded-full bg-white/10"></div>
-                          <div className="w-20 h-8 rounded-full bg-white/10"></div>
+                      {/* Device Status Bar */}
+                      <div className="w-full h-8 flex justify-between items-center px-6 pt-2 bg-black/40">
+                        <div className="w-12 h-3 rounded-full bg-white/10"></div>
+                        <div className="w-16 h-4 rounded-full bg-black"></div>
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 rounded-full bg-white/10"></div>
+                          <div className="w-5 h-3 rounded-full bg-white/10"></div>
                         </div>
                       </div>
-
-                      {/* Content Blocks (Hierarchy) */}
-                      <div className="space-y-4 relative z-10">
-                        {/* Highlighted Block (e.g. Primary Service) */}
-                        <div className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 relative overflow-hidden">
-                          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white/5 to-transparent pointer-events-none"></div>
-                          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                            <Zap className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="w-3/4 h-4 rounded bg-white/80 mb-2"></div>
-                            <div className="w-1/2 h-3 rounded bg-white/40"></div>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-white/30" />
-                        </div>
-
-                        {/* Standard Block */}
-                        <div className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                            <Briefcase className="w-5 h-5 text-white/50" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="w-2/3 h-4 rounded bg-white/60 mb-2"></div>
-                            <div className="w-1/3 h-3 rounded bg-white/30"></div>
-                          </div>
-                        </div>
+  
+                      {/* App Content */}
+                      <div className="flex-1 bg-gradient-to-b from-[#121214] to-[#0a0a0b] p-6 relative overflow-y-hidden">
+                        {/* Top banner glow inside device */}
+                        <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
                         
-                        {/* Trust Snippet inside App */}
-                        <div className="w-full p-4 rounded-2xl bg-gradient-to-br from-[#1a1a1d] to-black border border-white/5">
-                          <div className="flex gap-1 mb-2">
-                            {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-white text-white" />)}
+                        {/* Profile Section */}
+                        <div className="flex flex-col items-center text-center mt-6 mb-8 relative z-10">
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-white/20 to-white/5 p-[2px] mb-4 shadow-lg">
+                            <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                              <User className="w-8 h-8 text-white/30" />
+                            </div>
                           </div>
-                          <div className="w-full h-3 rounded bg-white/40 mb-1.5"></div>
-                          <div className="w-5/6 h-3 rounded bg-white/40"></div>
+                          <div className="w-40 h-6 rounded-md bg-white/90 mb-2"></div>
+                          <div className="w-28 h-4 rounded-md bg-white/40 mb-4"></div>
+                          <div className="flex gap-2">
+                            <div className="w-20 h-8 rounded-full bg-white/10"></div>
+                            <div className="w-20 h-8 rounded-full bg-white/10"></div>
+                          </div>
+                        </div>
+  
+                        {/* Content Blocks (Hierarchy) */}
+                        <div className="space-y-4 relative z-10">
+                          {/* Highlighted Block (e.g. Primary Service) */}
+                          <div className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4 relative overflow-hidden">
+                            <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white/5 to-transparent pointer-events-none"></div>
+                            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                              <Zap className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="w-3/4 h-4 rounded bg-white/80 mb-2"></div>
+                              <div className="w-1/2 h-3 rounded bg-white/40"></div>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-white/30" />
+                          </div>
+  
+                          {/* Standard Block */}
+                          <div className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                              <Briefcase className="w-5 h-5 text-white/50" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="w-2/3 h-4 rounded bg-white/60 mb-2"></div>
+                              <div className="w-1/3 h-3 rounded bg-white/30"></div>
+                            </div>
+                          </div>
+                          
+                          {/* Trust Snippet inside App */}
+                          <div className="w-full p-4 rounded-2xl bg-gradient-to-br from-[#1a1a1d] to-black border border-white/5">
+                            <div className="flex gap-1 mb-2">
+                              {[1,2,3,4,5].map(i => <Star key={i} className="w-3 h-3 fill-white text-white" />)}
+                            </div>
+                            <div className="w-full h-3 rounded bg-white/40 mb-1.5"></div>
+                            <div className="w-5/6 h-3 rounded bg-white/40"></div>
+                          </div>
+                        </div>
+  
+                        {/* Fixed Bottom CTA in App */}
+                        <div className="absolute bottom-6 left-6 right-6 h-14 rounded-2xl bg-white flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(255,255,255,0.4)] z-20">
+                          <div className="w-32 h-4 rounded bg-black"></div>
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
+                      </div>
+                    </div>
+  
+                    {/* Overlapping Floating Layer 1: "Conversion Insights" (Right, pulled forward) */}
+                    <div className="absolute top-[20%] -right-12 lg:-right-24 w-64 p-5 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] transform rotate-y-[-15deg] translate-z-[50px]" style={{ animation: "var(--animate-float-delayed) 9s ease-in-out infinite" }}>
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="text-[10px] text-white/50 uppercase tracking-wider mb-1">Total Kunjungan</div>
+                          <div className="text-2xl font-medium text-white">12.4k</div>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-green-400/10 flex items-center justify-center">
+                          <ArrowUpRight className="w-4 h-4 text-green-400" />
                         </div>
                       </div>
-
-                      {/* Fixed Bottom CTA in App */}
-                      <div className="absolute bottom-6 left-6 right-6 h-14 rounded-2xl bg-white flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(255,255,255,0.4)] z-20">
-                        <div className="w-32 h-4 rounded bg-black"></div>
+                      {/* Mini chart */}
+                      <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-t border-white/5">
+                        {[30, 45, 25, 60, 40, 85, 55].map((h, i) => (
+                          <div key={i} className={`flex-1 rounded-t-[2px] ${i === 5 ? 'bg-white' : 'bg-white/20'}`} style={{ height: `${h}%` }}></div>
+                        ))}
                       </div>
-                      <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-black to-transparent z-10 pointer-events-none"></div>
                     </div>
+  
+                    {/* Overlapping Floating Layer 2: "Trust/Verified" (Left, pushed slightly back) */}
+                    <div className="absolute bottom-[25%] -left-10 lg:-left-20 w-56 p-4 rounded-2xl bg-[#121214]/90 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] transform rotate-y-[10deg] translate-z-[20px]" style={{ animation: "var(--animate-float) 7s ease-in-out infinite" }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                          <ShieldCheck className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-white mb-0.5">Identitas Valid</div>
+                          <div className="text-[10px] text-[var(--color-text-secondary)]">Terverifikasi oleh sistem</div>
+                        </div>
+                      </div>
+                    </div>
+  
                   </div>
-
-                  {/* Overlapping Floating Layer 1: "Conversion Insights" (Right, pulled forward) */}
-                  <div className="absolute top-[20%] -right-12 lg:-right-24 w-64 p-5 rounded-2xl bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] transform rotate-y-[-15deg] translate-z-[50px]" style={{ animation: "var(--animate-float-delayed) 9s ease-in-out infinite" }}>
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <div className="text-[10px] text-white/50 uppercase tracking-wider mb-1">Total Kunjungan</div>
-                        <div className="text-2xl font-medium text-white">12.4k</div>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-green-400/10 flex items-center justify-center">
-                        <ArrowUpRight className="w-4 h-4 text-green-400" />
-                      </div>
-                    </div>
-                    {/* Mini chart */}
-                    <div className="flex items-end gap-1.5 h-12 w-full pt-2 border-t border-white/5">
-                      {[30, 45, 25, 60, 40, 85, 55].map((h, i) => (
-                        <div key={i} className={`flex-1 rounded-t-[2px] ${i === 5 ? 'bg-white' : 'bg-white/20'}`} style={{ height: `${h}%` }}></div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Overlapping Floating Layer 2: "Trust/Verified" (Left, pushed slightly back) */}
-                  <div className="absolute bottom-[25%] -left-10 lg:-left-20 w-56 p-4 rounded-2xl bg-[#121214]/90 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] transform rotate-y-[10deg] translate-z-[20px]" style={{ animation: "var(--animate-float) 7s ease-in-out infinite" }}>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                        <ShieldCheck className="w-5 h-5 text-blue-400" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-white mb-0.5">Identitas Valid</div>
-                        <div className="text-[10px] text-[var(--color-text-secondary)]">Terverifikasi oleh sistem</div>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
-              </div>
+              </RevealWrapper>
             </div>
           </div>
         </section>
@@ -270,7 +273,7 @@ export default function HomePage() {
           <div className="absolute top-1/2 left-[10%] w-[400px] h-[400px] bg-white/[0.015] rounded-full blur-[100px] pointer-events-none -z-10"></div>
           
           <div className="grid lg:grid-cols-[1fr_1.1fr] gap-16 lg:gap-24 items-start pl-0 lg:pl-8">
-            <div className="sticky top-32">
+            <RevealWrapper direction="right" className="sticky top-32">
               <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6 leading-[1.15] text-white">
                 Banyak terlihat,<br/>
                 <span className="text-[var(--color-text-secondary)]">tapi belum terasa meyakinkan.</span>
@@ -280,7 +283,7 @@ export default function HomePage() {
                 <br/><br/>
                 Masalahnya bukan Anda tidak cukup bagus. Masalahnya, kualitas Anda belum tersaji dengan benar.
               </p>
-            </div>
+            </RevealWrapper>
 
             <div className="grid sm:grid-cols-2 gap-4">
               {[
@@ -289,14 +292,16 @@ export default function HomePage() {
                 { title: "Menebak-nebak", desc: "Calon klien harus mencari tahu sendiri siapa Anda dan layanan apa yang Anda sediakan." },
                 { title: "Perhatian berhenti", desc: "Traffic datang berlimpah, tapi tidak ada alur yang mengarah ke aksi atau keputusan konversi." }
               ].map((problem, i) => (
-                <div key={i} className={`p-8 rounded-[24px] transition-all duration-500 group relative overflow-hidden ${problem.highlight ? 'bg-gradient-to-b from-[#1a1a1d] to-[#121214] border border-white/20 shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]' : 'bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]'}`}>
-                  {problem.highlight && <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full blur-2xl"></div>}
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-6 text-sm font-medium ${problem.highlight ? 'bg-white/10 text-white' : 'bg-black/50 text-white/40 border border-white/10 group-hover:text-white'}`}>
-                    0{i+1}
+                <RevealWrapper key={i} delay={i * 0.1}>
+                  <div className={`p-8 rounded-[24px] transition-all duration-500 group relative overflow-hidden h-full ${problem.highlight ? 'bg-gradient-to-b from-[#1a1a1d] to-[#121214] border border-white/20 shadow-[0_10px_40px_-10px_rgba(255,255,255,0.05)]' : 'bg-white/[0.02] border border-white/5 hover:bg-white/[0.04]'}`}>
+                    {problem.highlight && <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full blur-2xl"></div>}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-6 text-sm font-medium ${problem.highlight ? 'bg-white/10 text-white' : 'bg-black/50 text-white/40 border border-white/10 group-hover:text-white'}`}>
+                      0{i+1}
+                    </div>
+                    <h3 className={`text-lg font-medium mb-3 ${problem.highlight ? 'text-white' : 'text-white/80'}`}>{problem.title}</h3>
+                    <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{problem.desc}</p>
                   </div>
-                  <h3 className={`text-lg font-medium mb-3 ${problem.highlight ? 'text-white' : 'text-white/80'}`}>{problem.title}</h3>
-                  <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{problem.desc}</p>
-                </div>
+                </RevealWrapper>
               ))}
             </div>
           </div>
@@ -304,7 +309,7 @@ export default function HomePage() {
 
         {/* 5. BEFORE VS AFTER - Visual Storytelling */}
         <section className="py-24 bg-black/40 border-y border-white/5 relative overflow-hidden">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
+          <RevealWrapper direction="up" className="max-w-[1200px] mx-auto px-6 lg:px-12 w-full">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-medium tracking-tight text-white mb-4">Perbedaan yang langsung terasa.</h2>
               <p className="text-[var(--color-text-secondary)] text-lg">Dari tumpukan link acak, menjadi sebuah etalase profesional.</p>
@@ -316,7 +321,7 @@ export default function HomePage() {
                 <div className="inline-flex items-center gap-2 text-white/50 text-sm font-medium mb-8">
                   <XCircle className="w-4 h-4" /> Link Bio Standar
                 </div>
-                <div className="w-full max-w-[280px] bg-[#121214] rounded-[32px] border-4 border-[#1a1a1d] p-6 flex flex-col gap-4 aspect-[9/16]">
+                <div className="w-full max-w-[280px] h-[580px] bg-[#121214] rounded-[40px] border-4 border-[#1a1a1d] p-6 flex flex-col gap-4">
                   <div className="w-16 h-16 rounded-full bg-white/10 mx-auto mb-4"></div>
                   <div className="w-full h-12 rounded-xl bg-white/5"></div>
                   <div className="w-full h-12 rounded-xl bg-white/5"></div>
@@ -331,7 +336,7 @@ export default function HomePage() {
                 <div className="inline-flex items-center gap-2 text-white text-sm font-medium mb-8 relative z-10">
                   <CheckCircle2 className="w-4 h-4 text-green-400" /> Lynknov Presence
                 </div>
-                <div className="w-full max-w-[280px] bg-black rounded-[32px] border-4 border-white/10 p-5 flex flex-col gap-3 aspect-[9/16] relative z-10 group-hover:scale-105 transition-transform duration-500 shadow-2xl">
+                <div className="w-full max-w-[280px] h-[580px] bg-black rounded-[40px] border-[6px] border-white/10 p-5 flex flex-col gap-3 relative z-10 group-hover:scale-105 transition-transform duration-500 shadow-2xl">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-white/20 to-white/5"></div>
                     <div className="flex-1">
@@ -353,7 +358,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
+          </RevealWrapper>
         </section>
 
         {/* 6. VISION / PLATFORM - Cinematic Mid-Section */}
@@ -361,7 +366,7 @@ export default function HomePage() {
           <div className="absolute w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent top-0"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-white/[0.03] rounded-full blur-[120px] pointer-events-none"></div>
           
-          <div className="max-w-[1000px] mx-auto px-6 relative z-10">
+          <RevealWrapper direction="up" className="max-w-[1000px] mx-auto px-6 relative z-10">
             <p className="text-[var(--color-text-secondary)] tracking-[0.2em] uppercase text-[11px] font-medium mb-8">Visi Platform</p>
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-medium text-white mb-10 leading-[1.1] tracking-tight">
               Lebih dari sekadar profil.<br/>
@@ -370,7 +375,7 @@ export default function HomePage() {
             <p className="text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed font-normal">
               Lynknov dirancang untuk menjadi pusat kendali kehadiran digital Anda. Mengubah setiap impresi menjadi pemahaman, dan interaksi menjadi sebuah peluang bisnis yang nyata.
             </p>
-          </div>
+          </RevealWrapper>
         </section>
 
         {/* 7. SOLUTION / POSITIONING (Concentric Depth) */}
@@ -385,7 +390,7 @@ export default function HomePage() {
             <div className="w-3 h-3 bg-white rounded-full absolute shadow-[0_0_30px_10px_rgba(255,255,255,0.4)]"></div>
           </div>
 
-          <div className="max-w-[900px] mx-auto px-6 relative z-10 text-center">
+          <RevealWrapper direction="up" className="max-w-[900px] mx-auto px-6 relative z-10 text-center">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-8 leading-[1.1] text-white">
               Lynknov bukan sekadar halaman.<br/>
               <span className="text-gradient">Ini cara Anda tampil.</span>
@@ -408,7 +413,7 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </RevealWrapper>
         </section>
 
         {/* 8. SHOWCASE (MAJOR UPGRADE) - Jualan Produk Banget */}
@@ -517,64 +522,74 @@ export default function HomePage() {
 
         {/* 9. CORE FEATURES - Storytelling Unit */}
         <section id="produk" className="py-32 max-w-[1200px] mx-auto px-6">
-          <div className="mb-20">
+          <RevealWrapper direction="up" className="mb-20 w-full text-center md:text-left">
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight mb-6 text-white">
               Semua yang Anda butuhkan untuk<br/>tampil meyakinkan.
             </h2>
-          </div>
+          </RevealWrapper>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 auto-rows-fr">
             {/* Feature 1 - Featured (Large) */}
-            <div className="md:col-span-2 p-10 rounded-[32px] bg-[#121214] border border-white/10 hover:border-white/20 transition-colors group relative overflow-hidden">
-              <div className="absolute right-0 bottom-0 w-64 h-64 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
-              <LayoutTemplate className="w-8 h-8 mb-10 text-white/50 group-hover:text-white transition-colors" />
-              <h3 className="text-2xl font-medium mb-4 text-white">Smart Bio Page</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-md text-lg">
-                Satu halaman yang merangkum identitas, link penting, dan arah tindakan secara terstruktur. Bukan sekadar kumpulan tombol generik.
-              </p>
-            </div>
+            <RevealWrapper direction="up" delay={0.1} className="w-full h-full md:col-span-2">
+              <div className="p-10 rounded-[32px] bg-[#121214] border border-white/10 hover:border-white/20 transition-colors group relative overflow-hidden h-full flex flex-col justify-center">
+                <div className="absolute right-0 bottom-0 w-64 h-64 bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,transparent_70%)] pointer-events-none"></div>
+                <LayoutTemplate className="w-8 h-8 mb-6 text-white/50 group-hover:text-white transition-colors" />
+                <h3 className="text-2xl font-medium mb-4 text-white">Smart Bio Page</h3>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-md text-lg">
+                  Satu halaman yang merangkum identitas, link penting, dan arah tindakan secara terstruktur. Bukan sekadar kumpulan tombol generik.
+                </p>
+              </div>
+            </RevealWrapper>
 
             {/* Feature 2 */}
-            <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <Briefcase className="w-8 h-8 mb-10 text-white/50 group-hover:text-white transition-colors" />
-              <h3 className="text-xl font-medium mb-3 text-white">Portfolio Curated</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
-                Tampilkan hasil kerja atau studi kasus dalam format yang terasa elegan.
-              </p>
-            </div>
+            <RevealWrapper direction="up" delay={0.2} className="w-full h-full">
+              <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group h-full flex flex-col justify-center">
+                <Briefcase className="w-8 h-8 mb-6 text-white/50 group-hover:text-white transition-colors" />
+                <h3 className="text-xl font-medium mb-3 text-white">Portfolio Curated</h3>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
+                  Tampilkan hasil kerja atau studi kasus dalam format yang terasa elegan.
+                </p>
+              </div>
+            </RevealWrapper>
 
             {/* Feature 3 */}
-            <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <Store className="w-8 h-8 mb-10 text-white/50 group-hover:text-white transition-colors" />
-              <h3 className="text-xl font-medium mb-3 text-white">Service Blocks</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
-                Jelaskan layanan Anda dengan susunan yang mudah dipahami tanpa bertele-tele.
-              </p>
-            </div>
+            <RevealWrapper direction="up" delay={0.3} className="w-full h-full">
+              <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group h-full flex flex-col justify-center">
+                <Store className="w-8 h-8 mb-6 text-white/50 group-hover:text-white transition-colors" />
+                <h3 className="text-xl font-medium mb-3 text-white">Service Blocks</h3>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
+                  Jelaskan layanan Anda dengan susunan yang mudah dipahami tanpa bertele-tele.
+                </p>
+              </div>
+            </RevealWrapper>
 
             {/* Feature 4 */}
-            <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <MessageSquareQuote className="w-8 h-8 mb-10 text-white/50 group-hover:text-white transition-colors" />
-              <h3 className="text-xl font-medium mb-3 text-white">Social Proof</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
-                Integrasikan testimoni dan validasi untuk membangun kepercayaan instan.
-              </p>
-            </div>
+            <RevealWrapper direction="up" delay={0.4} className="w-full h-full">
+              <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group h-full flex flex-col justify-center">
+                <MessageSquareQuote className="w-8 h-8 mb-6 text-white/50 group-hover:text-white transition-colors" />
+                <h3 className="text-xl font-medium mb-3 text-white">Social Proof</h3>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
+                  Integrasikan testimoni dan validasi untuk membangun kepercayaan instan.
+                </p>
+              </div>
+            </RevealWrapper>
 
             {/* Feature 5 */}
-            <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group">
-              <MousePointerClick className="w-8 h-8 mb-10 text-white/50 group-hover:text-white transition-colors" />
-              <h3 className="text-xl font-medium mb-3 text-white">Conversion CTA</h3>
-              <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
-                Arahkan pengunjung ke langkah nyata dari chat hingga booking secara mulus.
-              </p>
-            </div>
+            <RevealWrapper direction="up" delay={0.5} className="w-full h-full">
+              <div className="p-10 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group h-full flex flex-col justify-center">
+                <MousePointerClick className="w-8 h-8 mb-6 text-white/50 group-hover:text-white transition-colors" />
+                <h3 className="text-xl font-medium mb-3 text-white">Conversion CTA</h3>
+                <p className="text-[var(--color-text-secondary)] leading-relaxed text-sm">
+                  Arahkan pengunjung ke langkah nyata dari chat hingga booking secara mulus.
+                </p>
+              </div>
+            </RevealWrapper>
           </div>
         </section>
 
         {/* 10. USER JOURNEY - Storytelling */}
         <section className="py-32 bg-black relative border-y border-white/5">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-12 text-center">
+          <RevealWrapper direction="up" className="max-w-[1200px] mx-auto px-6 lg:px-12 text-center w-full">
             <h2 className="text-3xl md:text-5xl font-medium tracking-tight mb-6 text-white">Dari klik pertama, hingga closing.</h2>
             <p className="text-lg text-[var(--color-text-secondary)] mb-20">Alur yang dirancang untuk mengubah impresi menjadi transaksi.</p>
             
@@ -588,7 +603,7 @@ export default function HomePage() {
                 { step: "04", title: "Action", desc: "Mereka menekan tombol CTA untuk mulai bekerja sama." }
               ].map((item, i) => (
                 <div key={i} className="relative z-10 flex flex-col items-center">
-                  <div className="w-24 h-24 rounded-full bg-[#121214] border border-white/10 flex items-center justify-center text-xl font-medium text-white mb-6 shadow-xl">
+                  <div className="w-24 h-24 rounded-full bg-[#121214] border border-white/10 flex items-center justify-center text-xl font-medium text-white mb-6 shadow-xl hover:scale-105 transition-transform duration-500 hover:border-white/30 hover:bg-white/5 cursor-default">
                     {item.step}
                   </div>
                   <h3 className="text-lg font-medium text-white mb-2">{item.title}</h3>
@@ -596,66 +611,136 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </RevealWrapper>
         </section>
 
         {/* 11. WHY LYNKNOV (Differentiation) */}
         <section className="py-32 max-w-[1200px] mx-auto px-6 lg:px-12">
-          <div className="p-12 md:p-16 lg:p-24 rounded-[40px] bg-gradient-to-br from-[#1a1a1d] to-[#0a0a0b] border border-white/10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.04),transparent_70%)] pointer-events-none"></div>
-            
-            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-16 items-center relative z-10">
-              <div>
-                <div className="text-sm font-medium text-[var(--color-text-tertiary)] uppercase tracking-widest mb-6">Kenapa Lynknov?</div>
-                <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6 leading-tight text-white">
-                  Dibuat untuk trust, bukan sekadar traffic.
-                </h2>
-                <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed mb-8 font-normal">
-                  Banyak platform sekadar mengumpulkan tombol. Kami membangun wadah presentasi profesional yang memastikan Anda tidak dinilai lebih rendah dari kemampuan asli Anda.
-                </p>
-              </div>
-              <div className="bg-black/30 backdrop-blur-sm rounded-[24px] p-8 border border-white/5">
-                <ul className="space-y-6">
-                  {[
-                    "Bukan template statis yang membosankan",
-                    "Fokus utama pada presentation & trust",
-                    "Lebih dekat ke Digital Presence utuh",
-                    "Dibangun untuk menghasilkan peluang"
-                  ].map((point, i) => (
-                    <li key={i} className="flex items-center gap-4 text-base font-medium text-white/90">
-                      <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-                        <CheckCircle2 className="w-4 h-4 text-white/60" />
-                      </div>
-                      {point}
-                    </li>
-                  ))}
-                </ul>
+          <RevealWrapper direction="up" className="w-full">
+            <div className="p-12 md:p-16 lg:p-24 rounded-[40px] bg-gradient-to-br from-[#1a1a1d] to-[#0a0a0b] border border-white/10 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.04),transparent_70%)] pointer-events-none"></div>
+  
+              <div className="grid lg:grid-cols-[1fr_1.2fr] gap-16 items-center relative z-10">
+                <div>
+                  <div className="text-sm font-medium text-[var(--color-text-tertiary)] uppercase tracking-widest mb-6">Kenapa Lynknov?</div>
+                  <h2 className="text-4xl md:text-5xl font-medium tracking-tight mb-6 leading-tight text-white">
+                    Dibuat untuk trust, bukan sekadar traffic.
+                  </h2>
+                  <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed mb-8 font-normal">
+                    Banyak platform sekadar mengumpulkan tombol. Kami membangun wadah presentasi profesional yang memastikan Anda tidak dinilai lebih rendah dari kemampuan asli Anda.
+                  </p>
+                </div>
+                <div className="bg-black/30 backdrop-blur-sm rounded-[24px] p-8 border border-white/5">
+                  <ul className="space-y-6">
+                    {[
+                      "Bukan template statis yang membosankan",
+                      "Fokus utama pada presentation & trust",
+                      "Lebih dekat ke Digital Presence utuh",
+                      "Dibangun untuk menghasilkan peluang"
+                    ].map((point, i) => (
+                      <li key={i} className="flex items-center gap-4 text-base font-medium text-white/90">
+                        <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                          <CheckCircle2 className="w-4 h-4 text-white/60" />
+                        </div>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
-          </div>
+          </RevealWrapper>
         </section>
 
-        {/* 12. TESTIMONIALS (Dummy) */}
-        <section className="py-24 border-t border-white/5 bg-[var(--color-surface-base)]">
-          <div className="max-w-[1200px] mx-auto px-6 lg:px-12">
-            <h2 className="text-3xl font-medium text-center text-white mb-16">Dipercaya oleh profesional mandiri.</h2>
-            <div className="grid md:grid-cols-3 gap-6">
+        {/* 12. TESTIMONIALS */}
+        <section className="py-24 border-t border-white/5 bg-[var(--color-surface-base)] relative overflow-hidden">
+          {/* Ambient Background Effects */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[var(--color-brand-glow)] blur-[120px] rounded-full pointer-events-none"></div>
+            
+          <div className="max-w-[1200px] mx-auto px-6 lg:px-12 relative z-10 mb-16">
+            <h2 className="text-3xl md:text-5xl font-medium tracking-tight text-center text-white">
+              Jangan percaya kami,<br />tapi dengarkan kata mereka.
+            </h2>
+          </div>
+
+          {/* Marquee Container with Edge Fading */}
+          <div 
+            className="relative flex flex-col gap-6 w-full max-w-[100vw] overflow-hidden" 
+            style={{ maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)', WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' }}
+          >
+            {/* Row 1 (Moves Left) */}
+            <div className="flex w-max gap-6 animate-[marquee_45s_linear_infinite] hover:[animation-play-state:paused] pl-6">
               {[
-                { quote: "Sejak pakai Lynknov, klien nggak nanya-nanya lagi soal portofolio, semuanya udah jelas dan elegan di satu tempat. Konversi naik drastis.", name: "Budi Santoso", role: "UI/UX Designer" },
+                { quote: "Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer.", name: "Dimas Aditya", role: "UI/UX Designer" },
                 { quote: "Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit.", name: "Sarah Amalia", role: "Business Consultant" },
-                { quote: "Gue pakai buat jualan jasa studio gue. Klien langsung percaya karena first impression-nya dapet banget. Sangat recommended.", name: "Rizky Pratama", role: "Creative Director" }
+                { quote: "Awalnya iseng nyoba, eh ternyata ngaruh banget ke konversi. Link yang tertata rapi bikin calon klien lebih gampang milih paket layanan.", name: "Reza Fahlevi", role: "Freelance Copywriter" },
+                { quote: "Sebagai fotografer, showcase karya itu penting banget. Pakai Lynknov, galeri foto gue tampil super elegan dan profesional tanpa ribet coding.", name: "Aditya Rahman", role: "Professional Photographer" },
+                { quote: "Ngebantu banget buat bikin personal branding gue makin solid. Tampilannya clean, gak lebay, dan pas banget buat nampilin rate card.", name: "Nadhira Ayu", role: "Content Creator" },
+                // Duplicated for seamless infinite scroll
+                { quote: "Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer.", name: "Dimas Aditya", role: "UI/UX Designer" },
+                { quote: "Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit.", name: "Sarah Amalia", role: "Business Consultant" },
+                { quote: "Awalnya iseng nyoba, eh ternyata ngaruh banget ke konversi. Link yang tertata rapi bikin calon klien lebih gampang milih paket layanan.", name: "Reza Fahlevi", role: "Freelance Copywriter" },
+                { quote: "Sebagai fotografer, showcase karya itu penting banget. Pakai Lynknov, galeri foto gue tampil super elegan dan profesional tanpa ribet coding.", name: "Aditya Rahman", role: "Professional Photographer" },
+                { quote: "Ngebantu banget buat bikin personal branding gue makin solid. Tampilannya clean, gak lebay, dan pas banget buat nampilin rate card.", name: "Nadhira Ayu", role: "Content Creator" },
+                // Quadrupled to ensure wide screen coverage
+                { quote: "Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer.", name: "Dimas Aditya", role: "UI/UX Designer" },
+                { quote: "Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit.", name: "Sarah Amalia", role: "Business Consultant" },
+                { quote: "Awalnya iseng nyoba, eh ternyata ngaruh banget ke konversi. Link yang tertata rapi bikin calon klien lebih gampang milih paket layanan.", name: "Reza Fahlevi", role: "Freelance Copywriter" },
+                { quote: "Sebagai fotografer, showcase karya itu penting banget. Pakai Lynknov, galeri foto gue tampil super elegan dan profesional tanpa ribet coding.", name: "Aditya Rahman", role: "Professional Photographer" },
+                { quote: "Ngebantu banget buat bikin personal branding gue makin solid. Tampilannya clean, gak lebay, dan pas banget buat nampilin rate card.", name: "Nadhira Ayu", role: "Content Creator" },
+                { quote: "Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer.", name: "Dimas Aditya", role: "UI/UX Designer" },
+                { quote: "Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit.", name: "Sarah Amalia", role: "Business Consultant" },
+                { quote: "Awalnya iseng nyoba, eh ternyata ngaruh banget ke konversi. Link yang tertata rapi bikin calon klien lebih gampang milih paket layanan.", name: "Reza Fahlevi", role: "Freelance Copywriter" },
+                { quote: "Sebagai fotografer, showcase karya itu penting banget. Pakai Lynknov, galeri foto gue tampil super elegan dan profesional tanpa ribet coding.", name: "Aditya Rahman", role: "Professional Photographer" },
+                { quote: "Ngebantu banget buat bikin personal branding gue makin solid. Tampilannya clean, gak lebay, dan pas banget buat nampilin rate card.", name: "Nadhira Ayu", role: "Content Creator" },
               ].map((testi, i) => (
-                <div key={i} className="p-8 rounded-[24px] bg-[#121214] border border-white/5 flex flex-col justify-between">
-                  <div className="flex gap-1 mb-6">
+                <div key={`r1-${i}`} className="w-[320px] md:w-[380px] shrink-0 p-8 rounded-[24px] bg-[#121214] border border-white/5 hover:border-white/10 transition-colors flex flex-col justify-between group cursor-default">
+                  <div className="flex gap-1 mb-6 opacity-80 group-hover:opacity-100 transition-opacity">
                     {[1,2,3,4,5].map(star => <Star key={star} className="w-4 h-4 fill-white text-white" />)}
                   </div>
-                  <p className="text-[var(--color-text-secondary)] leading-relaxed mb-8">"{testi.quote}"</p>
-                  <div className="flex items-center gap-4 mt-auto">
-                    <div className="w-10 h-10 rounded-full bg-white/10"></div>
-                    <div>
-                      <div className="text-sm font-medium text-white">{testi.name}</div>
-                      <div className="text-xs text-[var(--color-text-tertiary)]">{testi.role}</div>
-                    </div>
+                  <p className="text-[var(--color-text-secondary)] leading-relaxed mb-8 text-sm md:text-base group-hover:text-[var(--color-text-primary)] transition-colors">"{testi.quote}"</p>
+                  <div className="mt-auto">
+                    <div className="text-sm font-medium text-white">{testi.name}</div>
+                    <div className="text-xs text-[var(--color-text-tertiary)]">{testi.role}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Row 2 (Moves Right) */}
+            <div className="flex w-max gap-6 animate-[marquee-reverse_50s_linear_infinite] hover:[animation-play-state:paused] pl-6">
+              {[
+                { quote: "Klien nggak pusing lagi nyari info layanan gue. Semuanya udah jelas terstruktur di satu halaman. Proses dealing jadi jauh lebih cepet.", name: "Fajar Hidayat", role: "SEO Specialist" },
+                { quote: "Udah nyoba berbagai platform link in bio, tapi ini yang paling ngerti kebutuhan profesional. Fitur service block-nya juara!", name: "Maya Kusuma", role: "Financial Advisor" },
+                { quote: "Impresi pertama itu segalanya. Semenjak ganti pakai ini, banyak klien nanya 'website-nya bikin di mana?', padahal cuma pakai Lynknov.", name: "Rian Setiawan", role: "Web Developer" },
+                { quote: "Simpel tapi impact-nya kerasa. Nggak cuma sekadar kumpulin link, tapi beneran ngebangun trust ke calon klien dari detik pertama.", name: "Putri Larasati", role: "Digital Marketer" },
+                { quote: "Dulu sering repot kirim PDF portfolio ke klien. Sekarang tinggal kasih satu link Lynknov, mereka bisa lihat semua karya gue dengan elegan.", name: "Bagus Prasetyo", role: "Video Editor" },
+                // Duplicated
+                { quote: "Klien nggak pusing lagi nyari info layanan gue. Semuanya udah jelas terstruktur di satu halaman. Proses dealing jadi jauh lebih cepet.", name: "Fajar Hidayat", role: "SEO Specialist" },
+                { quote: "Udah nyoba berbagai platform link in bio, tapi ini yang paling ngerti kebutuhan profesional. Fitur service block-nya juara!", name: "Maya Kusuma", role: "Financial Advisor" },
+                { quote: "Impresi pertama itu segalanya. Semenjak ganti pakai ini, banyak klien nanya 'website-nya bikin di mana?', padahal cuma pakai Lynknov.", name: "Rian Setiawan", role: "Web Developer" },
+                { quote: "Simpel tapi impact-nya kerasa. Nggak cuma sekadar kumpulin link, tapi beneran ngebangun trust ke calon klien dari detik pertama.", name: "Putri Larasati", role: "Digital Marketer" },
+                { quote: "Dulu sering repot kirim PDF portfolio ke klien. Sekarang tinggal kasih satu link Lynknov, mereka bisa lihat semua karya gue dengan elegan.", name: "Bagus Prasetyo", role: "Video Editor" },
+                // Quadrupled
+                { quote: "Klien nggak pusing lagi nyari info layanan gue. Semuanya udah jelas terstruktur di satu halaman. Proses dealing jadi jauh lebih cepet.", name: "Fajar Hidayat", role: "SEO Specialist" },
+                { quote: "Udah nyoba berbagai platform link in bio, tapi ini yang paling ngerti kebutuhan profesional. Fitur service block-nya juara!", name: "Maya Kusuma", role: "Financial Advisor" },
+                { quote: "Impresi pertama itu segalanya. Semenjak ganti pakai ini, banyak klien nanya 'website-nya bikin di mana?', padahal cuma pakai Lynknov.", name: "Rian Setiawan", role: "Web Developer" },
+                { quote: "Simpel tapi impact-nya kerasa. Nggak cuma sekadar kumpulin link, tapi beneran ngebangun trust ke calon klien dari detik pertama.", name: "Putri Larasati", role: "Digital Marketer" },
+                { quote: "Dulu sering repot kirim PDF portfolio ke klien. Sekarang tinggal kasih satu link Lynknov, mereka bisa lihat semua karya gue dengan elegan.", name: "Bagus Prasetyo", role: "Video Editor" },
+                { quote: "Klien nggak pusing lagi nyari info layanan gue. Semuanya udah jelas terstruktur di satu halaman. Proses dealing jadi jauh lebih cepet.", name: "Fajar Hidayat", role: "SEO Specialist" },
+                { quote: "Udah nyoba berbagai platform link in bio, tapi ini yang paling ngerti kebutuhan profesional. Fitur service block-nya juara!", name: "Maya Kusuma", role: "Financial Advisor" },
+                { quote: "Impresi pertama itu segalanya. Semenjak ganti pakai ini, banyak klien nanya 'website-nya bikin di mana?', padahal cuma pakai Lynknov.", name: "Rian Setiawan", role: "Web Developer" },
+                { quote: "Simpel tapi impact-nya kerasa. Nggak cuma sekadar kumpulin link, tapi beneran ngebangun trust ke calon klien dari detik pertama.", name: "Putri Larasati", role: "Digital Marketer" },
+                { quote: "Dulu sering repot kirim PDF portfolio ke klien. Sekarang tinggal kasih satu link Lynknov, mereka bisa lihat semua karya gue dengan elegan.", name: "Bagus Prasetyo", role: "Video Editor" },
+              ].map((testi, i) => (
+                <div key={`r2-${i}`} className="w-[320px] md:w-[380px] shrink-0 p-8 rounded-[24px] bg-[#121214] border border-white/5 hover:border-white/10 transition-colors flex flex-col justify-between group cursor-default">
+                  <div className="flex gap-1 mb-6 opacity-80 group-hover:opacity-100 transition-opacity">
+                    {[1,2,3,4,5].map(star => <Star key={star} className="w-4 h-4 fill-white text-white" />)}
+                  </div>
+                  <p className="text-[var(--color-text-secondary)] leading-relaxed mb-8 text-sm md:text-base group-hover:text-[var(--color-text-primary)] transition-colors">"{testi.quote}"</p>
+                  <div className="mt-auto">
+                    <div className="text-sm font-medium text-white">{testi.name}</div>
+                    <div className="text-xs text-[var(--color-text-tertiary)]">{testi.role}</div>
                   </div>
                 </div>
               ))}

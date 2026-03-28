@@ -1,0 +1,62 @@
+import { getProfileByUsername } from "@/components/profile/data/mock-profile";
+import { ProfileShell } from "@/components/profile/ui/profile-shell";
+import { HeroSection } from "@/components/profile/sections/hero-section";
+import { SocialPresence } from "@/components/profile/sections/social-presence";
+import { AboutSection } from "@/components/profile/sections/about-section";
+import { ShowcaseSection } from "@/components/profile/sections/showcase-section";
+import { HighlightsSection } from "@/components/profile/sections/highlights-section";
+import { TestimonialsSection } from "@/components/profile/sections/testimonials-section";
+import { ContactSection } from "@/components/profile/sections/contact-section";
+import { Metadata } from "next";
+
+interface ProfilePageProps {
+  params: Promise<{
+    username: string;
+  }>;
+}
+
+export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const profile = getProfileByUsername(resolvedParams.username);
+
+  if (!profile) {
+    return {
+      title: "Profile Not Found | Lynknov",
+    };
+  }
+
+  return {
+    title: `${profile.name} — ${profile.role}`,
+    description: profile.headline,
+  };
+}
+
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  const resolvedParams = await params;
+  const profile = getProfileByUsername(resolvedParams.username);
+
+  if (!profile) {
+    return (
+      <main className="min-h-screen bg-[#050505] flex items-center justify-center text-[#FAFAFA]">
+        <div className="text-center px-6">
+          <h1 className="text-3xl font-semibold mb-4">Profile not found</h1>
+          <p className="text-[#A1A1AA]">The digital stage you are looking for does not exist or has been moved.</p>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <ProfileShell>
+      <HeroSection profile={profile} />
+      <div className="mb-24 mt-8 md:mt-0 flex justify-center lg:justify-start lg:ml-[8.333333%]">
+        <SocialPresence profile={profile} />
+      </div>
+      <AboutSection profile={profile} />
+      <ShowcaseSection profile={profile} />
+      <HighlightsSection profile={profile} />
+      <TestimonialsSection profile={profile} />
+      <ContactSection profile={profile} />
+    </ProfileShell>
+  );
+}

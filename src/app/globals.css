@@ -76,6 +76,15 @@
     }
   }
   
+  @keyframes marquee-reverse {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
   @keyframes pulse-slow {
     0%, 100% {
       opacity: 0.3;
