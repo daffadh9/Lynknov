@@ -6,6 +6,7 @@ import AuthLayout, { useAuth } from "@/components/auth/AuthLayout";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { signInWithGoogle, signInWithEmail } from "@/features/auth/actions";
 
 export default function LoginPage() {
   const { setIsFocused } = useAuth();
@@ -15,21 +16,21 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+    const formData = new FormData(e.currentTarget);
+    const result = await signInWithEmail(formData);
+    
+    if (result?.error) {
+      alert(result.error);
       setIsLoading(false);
-      router.push("/onboarding");
-    }, 1000);
+    }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    setTimeout(() => {
-      setIsGoogleLoading(false);
-      router.push("/onboarding");
-    }, 1000);
+    await signInWithGoogle();
   };
 
   const handleFocus = (field: string) => {
@@ -70,10 +71,11 @@ export default function LoginPage() {
             
             {/* Email Field */}
             <div className="space-y-1.5 relative group">
-              <label htmlFor="email" className={`text-sm font-medium transition-colors duration-300 ${focusedField === 'email' ? 'text-[#a78bfa]' : 'text-[var(--color-text-secondary)]'}`}>Email</label>
+              <label htmlFor="email" className={`text-sm font-medium transition-colors duration-300 ${focusedField === 'email' ? 'text-[#a78bfa]' : 'text-[var(--color-text-secondary)]'}`}>Alamat Email</label>
               <div className="relative">
                 <input 
                   id="email"
+                  name="email"
                   type="email" 
                   placeholder="nama@email.com"
                   required
@@ -87,14 +89,15 @@ export default function LoginPage() {
             {/* Password Field */}
             <div className="space-y-1.5 relative group">
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className={`text-sm font-medium transition-colors duration-300 ${focusedField === 'password' ? 'text-[#a78bfa]' : 'text-[var(--color-text-secondary)]'}`}>Password</label>
+                <label htmlFor="password" className={`text-sm font-medium transition-colors duration-300 ${focusedField === 'password' ? 'text-[#a78bfa]' : 'text-[var(--color-text-secondary)]'}`}>Sandi Akun</label>
                 <Link href="/lupa-password" className="text-xs font-medium text-[var(--color-text-tertiary)] hover:text-white transition-colors">
-                  Lupa password?
+                  Lupa sandi?
                 </Link>
               </div>
               <div className="relative flex items-center">
                 <input 
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••"
                   required

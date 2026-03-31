@@ -6,6 +6,7 @@ import AuthLayout, { useAuth } from "@/components/auth/AuthLayout";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { signInWithGoogle, signUpWithEmail } from "@/features/auth/actions";
 
 export default function RegisterPage() {
   const { setIsFocused } = useAuth();
@@ -15,21 +16,25 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
+    const formData = new FormData(e.currentTarget);
+    const result = await signUpWithEmail(formData);
+    
+    if (result?.error) {
+      alert(result.error);
       setIsLoading(false);
-      router.push("/onboarding");
-    }, 1500);
+    } else if (result?.confirmEmail) {
+      alert(result.message);
+      setIsLoading(false);
+      router.push("/login");
+    }
   };
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
-    setTimeout(() => {
-      setIsGoogleLoading(false);
-      router.push("/onboarding");
-    }, 1500);
+    await signInWithGoogle();
   };
 
   const handleFocus = (field: string) => {

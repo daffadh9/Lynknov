@@ -1,12 +1,17 @@
 import { getProfileByUsername } from "@/components/profile/data/mock-profile";
 import { ProfileShell } from "@/components/profile/ui/profile-shell";
 import { HeroSection } from "@/components/profile/sections/hero-section";
-import { SocialPresence } from "@/components/profile/sections/social-presence";
+import { ConnectSection } from "@/components/profile/sections/connect-section";
 import { AboutSection } from "@/components/profile/sections/about-section";
 import { ShowcaseSection } from "@/components/profile/sections/showcase-section";
-import { HighlightsSection } from "@/components/profile/sections/highlights-section";
+import { ProjectPortfolioSection } from "@/components/profile/sections/project-portfolio";
+import { GallerySection } from "@/components/profile/sections/gallery-section";
+import { LinkHubSection } from "@/components/profile/sections/link-hub";
 import { TestimonialsSection } from "@/components/profile/sections/testimonials-section";
 import { ContactSection } from "@/components/profile/sections/contact-section";
+import { SpotlightSection } from "@/components/profile/sections/spotlight-section";
+import { StoryboardSection } from "@/components/profile/sections/storyboard-section";
+import { ScrollProgress } from "@/components/profile/ui/scroll-progress";
 import { Metadata } from "next";
 
 interface ProfilePageProps {
@@ -47,16 +52,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   return (
-    <ProfileShell>
-      <HeroSection profile={profile} />
-      <div className="mb-24 mt-8 md:mt-0 flex justify-center lg:justify-start lg:ml-[8.333333%]">
-        <SocialPresence profile={profile} />
-      </div>
-      <AboutSection profile={profile} />
-      <ShowcaseSection profile={profile} />
-      <HighlightsSection profile={profile} />
-      <TestimonialsSection profile={profile} />
-      <ContactSection profile={profile} />
-    </ProfileShell>
+    <>
+      <ScrollProgress />
+      <ProfileShell>
+        <HeroSection profile={profile} />
+        <AboutSection profile={profile} />
+        <SpotlightSection profile={profile} />
+        <GallerySection profile={profile} />
+        <ConnectSection profile={profile} />
+        <ShowcaseSection profile={profile} />
+        <StoryboardSection profile={profile} />
+        <ProjectPortfolioSection profile={profile} />
+        <LinkHubSection profile={profile} />
+        <TestimonialsSection profile={profile} />
+        <ContactSection profile={profile} />
+      </ProfileShell>
+    </>
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Sparkles, CheckCircle2, LayoutDashboard, MousePointerClick, TrendingUp, Users, Globe } from "lucide-react";
 import { motion, AnimatePresence, animate, Variants } from "framer-motion";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 const AuthContext = createContext<{
   isFocused: boolean;
@@ -48,6 +49,10 @@ export default function AuthLayout({
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     
     if (metricsType === "growth") {
       const controls1 = animate(0, 12402, { duration: 2.5, ease: "easeOut", onUpdate: (val) => setClicks(Math.floor(val)) });
@@ -57,7 +62,7 @@ export default function AuthLayout({
       const controls1 = animate(0, 142, { duration: 2.5, ease: "easeOut", onUpdate: (val) => setLeads(Math.floor(val)) });
       return () => { controls1.stop(); };
     }
-  }, [metricsType]);
+  }, [metricsType, mounted]);
   
   if (!mounted) return null;
 
@@ -110,13 +115,12 @@ export default function AuthLayout({
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col h-full justify-between"
           >
-            {/* Header */}
             <div className="flex justify-between items-center">
-              <Link href="/" className="text-2xl font-medium tracking-tight text-white flex items-center gap-2 group">
-                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-300 group-hover:scale-105">
-                  <div className="w-3 h-3 rounded-full bg-black"></div>
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="relative w-12 h-12 flex items-center justify-center group-hover:scale-105 transition-all duration-300">
+                  <Image src="/images/icon_lynknov_transparan.png" alt="Lynknov Logo" width={48} height={48} className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.15)] group-hover:drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]" />
                 </div>
-                <span className="relative">Lynknov</span>
+                <span className="relative text-[28px] font-semibold tracking-tight text-white">Lynknov</span>
               </Link>
             </div>
 

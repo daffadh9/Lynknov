@@ -10,8 +10,34 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    
+    if (!error && data.user) {
+      // Check if user has an existing profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_onboarded')
+        .eq('id', data.user.id)
+        .maybeSingle()
+
+      // If no profile exists (new user) or not onboarded, create profile and go to onboarding
+      if (!profile) {
+        await supabase.from('profiles').upsert(
+          {
+            id: data.user.id,
+            full_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
+            is_onboarded: false,
+          },
+          { onConflict: 'id' },
+        )
+        return NextResponse.redirect(`${origin}/onboarding`)
+      }
+
+      if (profile.is_onboarded === false) {
+        return NextResponse.redirect(`${origin}/onboarding`)
+      }
+
+      // Existing user with completed onboarding
       return NextResponse.redirect(`${origin}${next}`)
     }
   }

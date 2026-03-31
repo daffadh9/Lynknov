@@ -59,8 +59,38 @@ export async function signUpWithEmail(formData: FormData) {
   redirect('/onboarding')
 }
 
+export async function signInWithGoogle() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    },
+  })
+
+  if (data.url) {
+    redirect(data.url) // use the redirect API for your server framework
+  }
+}
+
+export async function resetPasswordForEmail(email: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/lupa-password/reset`,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}
+
 export async function signOut() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
-  redirect('/auth/login')
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+    return { error: error.message }
+  }
+  redirect('/login')
 }

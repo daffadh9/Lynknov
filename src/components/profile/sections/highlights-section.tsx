@@ -12,10 +12,10 @@ interface HighlightsSectionProps {
 }
 
 export function HighlightsSection({ profile }: HighlightsSectionProps) {
-  if (!profile.highlights || profile.highlights.length === 0) return null;
-
   const [featuredIndex, setFeaturedIndex] = useState(0);
 
+  if (!profile.highlights || profile.highlights.length === 0) return null;
+  
   const handleNext = () => {
     setFeaturedIndex((prev) => (prev + 1) % profile.highlights.length);
   };

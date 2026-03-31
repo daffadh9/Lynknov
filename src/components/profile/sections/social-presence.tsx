@@ -9,7 +9,7 @@ export function SocialPresence({ profile }: SocialPresenceProps) {
   if (!profile.socialLinks || profile.socialLinks.length === 0) return null;
 
   return (
-    <div className="relative w-full py-8 border-y border-white/[0.05] bg-gradient-to-r from-transparent via-[#0A0A0A] to-transparent">
+    <div className="relative w-full py-8 bg-gradient-to-r from-transparent via-[#0A0A0A] to-transparent border-none z-10 transition-colors">
       <div className="mx-auto max-w-[1200px] px-6 md:px-12 xl:px-20">
         <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500 mr-4 hidden md:block">
