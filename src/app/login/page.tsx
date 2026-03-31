@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import AuthLayout, { useAuth } from "@/components/auth/AuthLayout";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { signInWithGoogle, signInWithEmail } from "@/features/auth/actions";
 
 export default function LoginPage() {
@@ -14,8 +13,6 @@ export default function LoginPage() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);

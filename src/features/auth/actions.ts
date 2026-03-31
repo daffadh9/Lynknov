@@ -61,7 +61,7 @@ export async function signUpWithEmail(formData: FormData) {
 
 export async function signInWithGoogle() {
   const supabase = await createClient()
-  const { data, error } = await supabase.auth.signInWithOAuth({
+  const { data } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,

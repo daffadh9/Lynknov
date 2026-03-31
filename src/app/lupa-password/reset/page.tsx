@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import AuthLayout, { useAuth } from "@/components/auth/AuthLayout";
-import { Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 

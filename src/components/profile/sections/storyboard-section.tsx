@@ -3,7 +3,7 @@
 import { ProfileData } from "../types/profile";
 import { AnimatedTitle } from "../ui/animated-title";
 import { ScrollReveal } from "../ui/scroll-reveal";
-import { Quote, Sparkles, Rocket } from "lucide-react";
+import { Quote, Rocket } from "lucide-react";
 import Image from "next/image";
 
 interface StoryboardSectionProps {

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
@@ -110,9 +111,9 @@ export default async function PublicProfilePage({ params }: Props) {
 
         {/* Powered by */}
         <div className="mt-12 text-center">
-          <a href="/" className="text-xs text-gray-600 hover:text-gray-500">
+          <Link href="/" className="text-xs text-gray-600 hover:text-gray-500">
             Powered by lynknov
-          </a>
+          </Link>
         </div>
       </div>
     </main>

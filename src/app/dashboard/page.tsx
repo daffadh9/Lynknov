@@ -269,7 +269,6 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {quickActions.map((action, i) => {
-              const Icon = action.icon;
               return (
                 <div 
                   key={i}

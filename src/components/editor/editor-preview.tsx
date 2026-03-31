@@ -1,9 +1,17 @@
-"use client";
-
 import { Monitor, Smartphone, Tablet } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { EditorSection } from "@/types/editor";
+import type {
+  EditorSection,
+  HeroSection,
+  AboutSection,
+  DigitalPresenceSection,
+  ShowcaseSection,
+  StoryboardSection,
+  PortfolioSection,
+  LinkHubSection,
+  TestimonialsSection,
+} from "@/types/editor";
 
 interface EditorPreviewProps {
   sections: EditorSection[];

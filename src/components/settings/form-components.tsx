@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { Camera, RefreshCw, X, Shield, ShieldAlert, MonitorSmartphone, Smartphone, ChevronRight, Loader2 } from "lucide-react";
-import Image from "next/image";
+import { Camera, Shield, ShieldAlert, MonitorSmartphone, Smartphone, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 // Helper internal component
@@ -18,6 +17,7 @@ export function HelperText({ text }: { text: string }) {
 export function ProfileAvatarField({
   value,
   onChange,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   disabled = false,
 }: {
   value: string | null;
@@ -97,6 +97,7 @@ export function ProfileAvatarField({
         {isUploading ? (
           <Loader2 className="w-8 h-8 animate-spin text-white/50" />
         ) : value ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
           <img src={value} alt="Profile" className="w-full h-full object-cover" />
         ) : (
           <div className="text-3xl font-bold bg-gradient-to-tr from-white/20 to-white/5 bg-clip-text text-transparent">

@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { ProfileData } from "../types/profile";
-import { motion, useMotionValue, useAnimation, PanInfo } from "framer-motion";
-import { Target, Maximize2, X, Plus } from "lucide-react";
+import { motion, useMotionValue, useAnimation } from "framer-motion";
+import { Target, X, Plus } from "lucide-react";
 import { AnimatedTitle } from "../ui/animated-title";
 import { ScrollReveal } from "../ui/scroll-reveal";
 
@@ -59,7 +59,7 @@ export function GallerySection({ profile }: GallerySectionProps) {
   const controls = useAnimation();
 
   // Define items before using them
-  const items = React.useMemo(() => {
+  const items = useMemo(() => {
     return profile.gallery?.map((img, i) => {
       const config = CONSTELLATION[i % CONSTELLATION.length];
       
@@ -97,6 +97,19 @@ export function GallerySection({ profile }: GallerySectionProps) {
     canvasY.set(cy);
   }, [canvasX, canvasY, profile.gallery]);
 
+  useEffect(() => {
+    if (containerRef.current && items[7]) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const targetX = (rect.width / 2) - (items[7].x + items[7].w / 2);
+      const targetY = (rect.height / 2) - (items[7].y + items[7].h / 2);
+
+      canvasX.set(targetX);
+      canvasY.set(targetY);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- set initial active item on mount
+      setActiveId(items[7].id);
+    }
+  }, [canvasX, canvasY, items]);
+
   if (!profile.gallery || profile.gallery.length === 0) return null;
 
   const updateActiveItem = () => {
@@ -114,7 +127,7 @@ export function GallerySection({ profile }: GallerySectionProps) {
     items.forEach((item) => {
       const ix = item.x + item.w / 2 + currentCx;
       const iy = item.y + item.h / 2 + currentCy;
-      
+
       const dist = Math.sqrt(Math.pow(ix - vpCenterX, 2) + Math.pow(iy - vpCenterY, 2));
       if (dist < minDist) {
         minDist = dist;
@@ -129,19 +142,7 @@ export function GallerySection({ profile }: GallerySectionProps) {
     }
   };
 
-  useEffect(() => {
-    if (containerRef.current && items[7]) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const targetX = (rect.width / 2) - (items[7].x + items[7].w / 2);
-      const targetY = (rect.height / 2) - (items[7].y + items[7].h / 2);
-      
-      canvasX.set(targetX);
-      canvasY.set(targetY);
-      setActiveId(items[7].id);
-    }
-  }, [canvasX, canvasY, items]);
-
-  const handleDragEnd = (e: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleDragEnd = () => {
     updateActiveItem();
   };
 
@@ -231,7 +232,7 @@ export function GallerySection({ profile }: GallerySectionProps) {
                     opacity: isActive ? 1 : 0.6,
                     scale: isActive ? 1.05 : 0.98,
                     rotate: isActive ? 0 : item.rotate,
-                    zIndex: isActive ? 50 : Math.round(Math.random() * 20),
+                    zIndex: isActive ? 50 : idx,
                     boxShadow: isActive ? "0 40px 100px -20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.4)" : "0 20px 40px -10px rgba(0,0,0,0.6)"
                   }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}

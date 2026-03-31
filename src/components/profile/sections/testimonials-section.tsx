@@ -2,7 +2,6 @@
 
 import { ProfileData } from "../types/profile";
 import { Quote, Star } from "lucide-react";
-import { motion } from "framer-motion";
 import { AnimatedTitle } from "../ui/animated-title";
 import { ScrollReveal } from "../ui/scroll-reveal";
 

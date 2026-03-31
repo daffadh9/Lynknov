@@ -94,7 +94,7 @@ export default function PrivacyPage() {
         <li>menghubungi kami terkait pertanyaan privasi</li>
       </ul>
 
-      <h2>8. Children's Privacy</h2>
+      <h2>8. Children&apos;s Privacy</h2>
       <p>
         Lynknov tidak ditujukan untuk anak-anak yang tidak memenuhi batas usia yang diizinkan menurut hukum yang berlaku. Kami tidak secara sengaja mengumpulkan data anak-anak tanpa dasar yang sah.
       </p>

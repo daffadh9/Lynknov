@@ -19,6 +19,7 @@ export default function EditorPage() {
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional hydration guard
     setMounted(true);
   }, []);
 

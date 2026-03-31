@@ -12,7 +12,7 @@ import {
   LinkHubSection,
   TestimonialsSection
 } from "@/types/editor";
-import { Info, LayoutTemplate, Settings2, Type, GripVertical, Plus, Trash2 } from "lucide-react";
+import { Info, LayoutTemplate, Settings2, Type } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { ImageUpload } from "./media/image-upload";
 
@@ -364,20 +364,6 @@ export function SectionEditorPanel({ section, onChange }: SectionEditorPanelProp
         </div>
       </div>
     );
-  };
-
-  const getSectionSummary = () => {
-    switch (section.type) {
-      case "hero": return "Kesan pertama. Pastikan foto dan headline mencerminkan identitas utama Anda.";
-      case "about": return "Ceritakan kisah, filosofi, atau pendekatan Anda secara ringkas.";
-      case "digital_presence": return "Hubungkan platform sosial media agar pengunjung bisa berinteraksi lebih jauh.";
-      case "showcase": return "Tampilkan karya atau penawaran utama Anda di sini.";
-      case "storyboard": return "Ceritakan timeline perjalanan atau highlight karir penting.";
-      case "portfolio": return "Kumpulan studi kasus atau proyek yang pernah dikerjakan.";
-      case "link_hub": return "Daftar link ke berbagai aset lain milik Anda.";
-      case "testimonials": return "Social proof dari klien atau partner untuk meningkatkan trust.";
-      default: return "Atur konten dan tampilan section ini.";
-    }
   };
 
   return (

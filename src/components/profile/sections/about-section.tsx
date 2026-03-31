@@ -2,7 +2,6 @@
 
 import { ProfileData } from "../types/profile";
 import { MoveRight, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
 import { ScrollReveal } from "../ui/scroll-reveal";
 import { AnimatedTitle } from "../ui/animated-title";
 

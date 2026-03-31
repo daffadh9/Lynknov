@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ProfileData, Highlight } from "../types/profile";
+import { ProfileData } from "../types/profile";
 import { ArrowLeft, ArrowRight, ChevronDown, ChevronUp, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedTitle } from "../ui/animated-title";

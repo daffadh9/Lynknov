@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import React from "react";
+import { motion, type Variants } from "framer-motion";
 
 interface AnimatedTitleProps {
   title: string;
@@ -9,9 +10,6 @@ interface AnimatedTitleProps {
 }
 
 export function AnimatedTitle({ title, className = "", as: Tag = "h2" }: AnimatedTitleProps) {
-  // Split the word to enable sophisticated staggered animations
-  const words = title.split(" ");
-
   const container = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
@@ -20,7 +18,7 @@ export function AnimatedTitle({ title, className = "", as: Tag = "h2" }: Animate
     }),
   };
 
-  const child: any = {
+  const child: Variants = {
     visible: {
       opacity: 1,
       y: 0,
@@ -41,7 +39,7 @@ export function AnimatedTitle({ title, className = "", as: Tag = "h2" }: Animate
     },
   };
 
-  const MotionTag = motion[Tag as keyof typeof motion] as any;
+  const MotionTag = motion[Tag as keyof typeof motion] as React.ComponentType<Record<string, unknown>>;
 
   return (
     <MotionTag

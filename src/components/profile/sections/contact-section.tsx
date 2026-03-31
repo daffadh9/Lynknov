@@ -1,9 +1,8 @@
 "use client";
 
 import { ProfileData } from "../types/profile";
-import { ArrowUpRight, Copy, Check, Copyright, MessageSquare, ExternalLink } from "lucide-react";
+import { ArrowUpRight, Copyright, MessageSquare, ExternalLink } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedTitle } from "../ui/animated-title";
 import { ScrollReveal } from "../ui/scroll-reveal";
 

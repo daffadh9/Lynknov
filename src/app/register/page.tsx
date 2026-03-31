@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import AuthLayout, { useAuth } from "@/components/auth/AuthLayout";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle, signUpWithEmail } from "@/features/auth/actions";
 

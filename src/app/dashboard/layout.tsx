@@ -46,6 +46,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Read localStorage preference + load user data
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional hydration guard
     setMounted(true);
     const saved = localStorage.getItem("lynknov:sidebar-collapsed");
     if (saved === "true") setCollapsed(true);

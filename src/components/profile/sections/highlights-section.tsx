@@ -150,7 +150,7 @@ export function HighlightsSection({ profile }: HighlightsSectionProps) {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => handleSelect((item as any)._originalIndex)}
+                    onClick={() => handleSelect((item as unknown as { _originalIndex: number })._originalIndex)}
                     className="group/queue relative flex flex-col gap-3 p-4 bg-transparent hover:bg-[#0A0A0A] border border-transparent hover:border-white/[0.05] transition-all text-left w-full cursor-pointer"
                   >
                     <div className="relative w-full aspect-[21/9] bg-[#0A0A0A] overflow-hidden border border-white/[0.05]">

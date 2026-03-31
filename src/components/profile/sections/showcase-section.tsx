@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { ProfileData, ShowcaseOffer } from "../types/profile";
-import { ArrowLeft, ArrowRight, ArrowUpRight, ChevronDown, Tag } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedTitle } from "../ui/animated-title";
 import { ScrollReveal } from "../ui/scroll-reveal";

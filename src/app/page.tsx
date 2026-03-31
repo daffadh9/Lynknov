@@ -1,18 +1,16 @@
 ﻿import Link from "next/link";
-import { 
-  ArrowRight, 
-  LayoutTemplate, 
-  Briefcase, 
-  Store, 
-  MessageSquareQuote, 
-  MousePointerClick, 
+import {
+  ArrowRight,
+  LayoutTemplate,
+  Briefcase,
+  Store,
+  MessageSquareQuote,
+  MousePointerClick,
   CheckCircle2,
   User,
   Zap,
-  Sparkles,
   ArrowUpRight,
   ShieldCheck,
-  BarChart3,
   XCircle,
   ChevronRight,
   Star,
@@ -494,7 +492,7 @@ export default function HomePage() {
                     Freelancer Profile
                   </div>
                   <h3 className="text-3xl font-medium text-white mb-3">Menyatukan portfolio & layanan</h3>
-                  <p className="text-[var(--color-text-secondary)] text-lg max-w-sm">"Orang langsung memahami value Anda, tanpa perlu klik sana-sini."</p>
+                  <p className="text-[var(--color-text-secondary)] text-lg max-w-sm">&quot;Orang langsung memahami value Anda, tanpa perlu klik sana-sini.&quot;</p>
                 </div>
 
                 {/* High Fidelity UI Mockup inside Panel */}
@@ -538,7 +536,7 @@ export default function HomePage() {
                       Consultant
                     </div>
                     <h3 className="text-xl font-medium text-white mb-2">Membangun kredibilitas</h3>
-                    <p className="text-[var(--color-text-secondary)] text-sm">"Menyusun offer & authority secara elegan."</p>
+                    <p className="text-[var(--color-text-secondary)] text-sm">&quot;Menyusun offer &amp; authority secara elegan.&quot;</p>
                   </div>
                   {/* Minimal Mockup */}
                   <div className="mt-auto bg-black rounded-[24px] border border-white/10 p-5 transform translate-y-4 group-hover:translate-y-2 transition-transform duration-500">
@@ -556,7 +554,7 @@ export default function HomePage() {
                       Creative Studio
                     </div>
                     <h3 className="text-xl font-medium text-white mb-2">First impression matang</h3>
-                    <p className="text-[var(--color-text-secondary)] text-sm">"Portfolio yang terasa seperti web premium."</p>
+                    <p className="text-[var(--color-text-secondary)] text-sm">&quot;Portfolio yang terasa seperti web premium.&quot;</p>
                   </div>
                   <div className="mt-auto flex gap-3 transform translate-y-4 group-hover:translate-y-2 transition-transform duration-500">
                      <div className="w-1/2 aspect-square rounded-2xl bg-black border border-white/10 p-3 flex flex-col justify-end">
@@ -730,7 +728,7 @@ export default function HomePage() {
                       {[1,2,3,4,5].map(star => <Star key={star} className="w-5 h-5 fill-white text-white" />)}
                     </div>
                     <h3 className="text-2xl md:text-3xl font-medium text-white mb-10 leading-snug">
-                      "Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer. Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit."
+                      &quot;Gue pakai buat naruh portofolio desain, klien langsung percaya karena first impression-nya dapet banget. Sangat recommended buat freelancer. Jauh lebih premium dari link bio biasa. Berasa punya mini-website seharga puluhan juta tapi setup-nya cuma 10 menit.&quot;
                     </h3>
                   </div>
                   <div className="flex items-center gap-4 relative z-10 mt-auto">
@@ -770,7 +768,7 @@ export default function HomePage() {
                           {[1,2,3,4,5].map(star => <Star key={star} className="w-4 h-4 fill-white text-white" />)}
                         </div>
                         <p className="text-[var(--color-text-secondary)] leading-relaxed mb-8 text-sm md:text-base">
-                          "{testi.quote}"
+                          &quot;{testi.quote}&quot;
                         </p>
                       </div>
                       <div className="flex items-center gap-3">

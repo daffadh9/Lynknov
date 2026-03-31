@@ -99,7 +99,7 @@ export default function ChangelogPage() {
 
         {/* Closing */}
         <div className="mt-8 pt-12 border-t border-white/[0.05] flex flex-col gap-4 items-center text-center">
-          <h3 className="!mt-0 !mb-2 text-xl font-medium text-white">What's Next?</h3>
+          <h3 className="!mt-0 !mb-2 text-xl font-medium text-white">What&apos;s Next?</h3>
           <p className="max-w-[500px]">
             Kami akan terus mengembangkan Lynknov secara bertahap, dengan fokus pada pengalaman yang lebih terstruktur, lebih meyakinkan, dan lebih berguna untuk pertumbuhan digital pengguna.
           </p>
