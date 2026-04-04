@@ -31,15 +31,19 @@ export function RevealWrapper({
   }, [isInView, mainControls]);
 
   const variants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: direction === "up" ? 40 : direction === "down" ? -40 : 0,
       x: direction === "left" ? 40 : direction === "right" ? -40 : 0,
+      scale: 0.985,
+      filter: "blur(12px)",
     },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       x: 0,
+      scale: 1,
+      filter: "blur(0px)",
     },
   };
 
@@ -50,7 +54,7 @@ export function RevealWrapper({
         initial="hidden"
         animate={mainControls}
         transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}
-        className="h-full w-full"
+        className="h-full w-full will-change-transform"
       >
         {children}
       </motion.div>

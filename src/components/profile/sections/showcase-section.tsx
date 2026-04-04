@@ -130,13 +130,15 @@ export function ShowcaseSection({ profile }: ShowcaseSectionProps) {
                    className="group relative flex flex-col w-full h-[320px] rounded-[1.5rem] bg-[#0A0A0C]/80 ring-1 ring-inset ring-white/[0.05] shadow-[0_4px_24px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.1)] backdrop-blur-xl overflow-hidden hover:ring-white/[0.2] hover:shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.2)] transition-all duration-500 block"
                  >
                    {/* Background Image */}
-                   <Image 
-                     src={offer.imageUrl}
-                     alt={offer.title}
-                     fill
-                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                     className="object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 blur-[2px] group-hover:blur-0 mix-blend-luminosity group-hover:mix-blend-normal"
-                   />
+                   {offer.imageUrl && (
+                     <Image 
+                       src={offer.imageUrl}
+                       alt={offer.title}
+                       fill
+                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                       className="object-cover opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 blur-[2px] group-hover:blur-0 mix-blend-luminosity group-hover:mix-blend-normal"
+                     />
+                   )}
                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                    
                    {/* Badges / Tags */}

@@ -1,13 +1,13 @@
-export type SectionType = 
-  | "hero" 
-  | "about" 
-  | "digital_presence" 
-  | "showcase" 
+export type SectionType =
+  | "hero"
+  | "about"
+  | "digital_presence"
+  | "showcase"
   | "storyboard"
-  | "portfolio" 
+  | "portfolio"
   | "link_hub"
-  | "testimonials" 
-  | "contact" 
+  | "testimonials"
+  | "contact"
   | "footer";
 
 export interface BaseSection {
@@ -31,6 +31,8 @@ export interface HeroSection extends BaseSection {
     primaryCta?: { label: string; url: string; };
     secondaryCta?: { label: string; url: string; };
     avatarUrl?: string;
+    badgeText?: string;
+    trustText?: string;
   };
   style: {
     alignment: "left" | "center" | "right";
@@ -40,6 +42,8 @@ export interface HeroSection extends BaseSection {
   };
   settings: {
     showBadge: boolean;
+    showAvatar: boolean;
+    showSecondaryCta: boolean;
     animation: "none" | "fade-up" | "fade-in";
   };
 }
@@ -50,12 +54,17 @@ export interface AboutSection extends BaseSection {
     title: string;
     description: string;
     bulletPoints?: string[];
+    sideCardTitle?: string;
+    sideCardLabel?: string;
   };
   style: {
     layout: "simple" | "split" | "card";
+    textAlignment?: "left" | "center";
   };
   settings: {
     showTitle: boolean;
+    showSideCard: boolean;
+    fullWidth: boolean;
   };
 }
 
@@ -72,6 +81,8 @@ export interface DigitalPresenceSection extends BaseSection {
   };
   settings: {
     showTitle: boolean;
+    showMetrics: boolean;
+    maxVisible: number;
   };
 }
 
@@ -88,6 +99,10 @@ export interface ShowcaseSection extends BaseSection {
   };
   settings: {
     showTitle: boolean;
+    showPrice: boolean;
+    showCategory: boolean;
+    showCta: boolean;
+    maxVisible: number;
   };
 }
 
@@ -96,13 +111,16 @@ export interface StoryboardSection extends BaseSection {
   content: {
     title: string;
     description?: string;
-    items: { id: string; date: string; title: string; content: string; status: string }[];
+    items: { id: string; date: string; title: string; content: string; status: string; imageUrl?: string }[];
   };
   style: {
     layout: "timeline" | "cards";
   };
   settings: {
     showTitle: boolean;
+    showDates: boolean;
+    showMedia: boolean;
+    maxVisible: number;
   };
 }
 
@@ -118,6 +136,10 @@ export interface PortfolioSection extends BaseSection {
   };
   settings: {
     showTitle: boolean;
+    showCategory: boolean;
+    showDescription: boolean;
+    maxVisible: number;
+    featuredMode: boolean;
   };
 }
 
@@ -126,13 +148,16 @@ export interface LinkHubSection extends BaseSection {
   content: {
     title: string;
     description?: string;
-    groups: { id: string; title: string; links: { id: string; label: string; url: string; icon?: string }[] }[];
+    groups: { id: string; title: string; links: { id: string; label: string; url: string; icon?: string; subtitle?: string }[] }[];
   };
   style: {
     layout: "accordion" | "cards" | "list";
   };
   settings: {
     showTitle: boolean;
+    showIcons: boolean;
+    showGroups: boolean;
+    openInNewTab: boolean;
   };
 }
 
@@ -141,24 +166,69 @@ export interface TestimonialsSection extends BaseSection {
   content: {
     title: string;
     description?: string;
-    items: { id: string; quote: string; author: string; role: string; avatarUrl?: string }[];
+    items: { id: string; quote: string; author: string; role: string; company?: string; avatarUrl?: string }[];
   };
   style: {
     layout: "carousel" | "grid" | "masonry";
   };
   settings: {
     showTitle: boolean;
+    showAvatar: boolean;
+    showRole: boolean;
+    showCompany: boolean;
+    maxVisible: number;
   };
 }
 
-export type EditorSection = 
-  | BaseSection 
-  | HeroSection 
-  | AboutSection 
-  | DigitalPresenceSection 
+export type EditorSection =
+  | BaseSection
+  | HeroSection
+  | AboutSection
+  | DigitalPresenceSection
   | ShowcaseSection
   | StoryboardSection
   | PortfolioSection
   | LinkHubSection
   | TestimonialsSection;
 
+export type EditorWorkspaceKey =
+  | "sections"
+  | "uploads"
+  | "audio"
+  | "theme"
+  | "settings";
+
+export interface EditorPageSettings {
+  status: "draft" | "published";
+  slug: string;
+  pageTitle: string;
+  metaTitle: string;
+  metaDescription: string;
+  socialTitle: string;
+  socialDescription: string;
+  visibility: "public" | "unlisted" | "private";
+  seoIndexable: boolean;
+}
+
+export interface EditorThemeSettings {
+  accent: "emerald" | "ocean" | "gold";
+  background: "solid" | "grid" | "mesh" | "glow";
+  surface: "soft" | "glass" | "contrast";
+  typography: "refined" | "editorial" | "compact";
+  spacing: "relaxed" | "balanced" | "compact";
+}
+
+export interface EditorAudioSettings {
+  trackName: string;
+  duration: string;
+  widgetEnabled: boolean;
+  loopEnabled: boolean;
+  volume: number;
+  placement: "floating" | "inline";
+}
+
+export interface EditorWorkspaceState {
+  page: EditorPageSettings;
+  theme: EditorThemeSettings;
+  audio: EditorAudioSettings;
+}

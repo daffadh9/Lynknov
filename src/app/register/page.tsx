@@ -81,6 +81,7 @@ export default function RegisterPage() {
               <div className="relative">
                 <input 
                   id="name"
+                  name="full_name"
                   type="text" 
                   placeholder="John Doe"
                   required
@@ -97,6 +98,7 @@ export default function RegisterPage() {
               <div className="relative">
                 <input 
                   id="email"
+                  name="email"
                   type="email" 
                   placeholder="nama@email.com"
                   required
@@ -113,6 +115,7 @@ export default function RegisterPage() {
               <div className="relative flex items-center">
                 <input 
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"} 
                   placeholder="Buat password yang kuat"
                   required

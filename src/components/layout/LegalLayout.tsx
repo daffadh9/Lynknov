@@ -1,28 +1,16 @@
 import React from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { Footer } from '@/components/layout/Footer';
+import { PublicSiteHeader } from '@/components/layout/PublicSiteHeader';
 
 export default function LegalLayout({ children, title, subtitle, lastUpdated }: { children: React.ReactNode, title: string, subtitle: string, lastUpdated?: string }) {
   return (
     <div className="min-h-screen bg-[#0a0a0b] text-white flex flex-col font-sans relative overflow-hidden">
       {/* Ambient Background Glows */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-[radial-gradient(ellipse_at_top,rgba(167,139,250,0.08),transparent_70%)] pointer-events-none"></div>
-
-      {/* Top Navbar Simple */}
-      <nav className="h-20 border-b border-white/[0.05] flex items-center px-6 lg:px-12 sticky top-0 bg-[#0a0a0b]/80 backdrop-blur-xl z-50">
-        <div className="max-w-[1200px] mx-auto w-full flex items-center">
-          <Link href="/" className="flex items-center gap-3 text-sm font-medium text-[var(--color-text-secondary)] hover:text-white transition-colors group w-fit">
-            <div className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:bg-white/10 transition-colors">
-              <ArrowLeft className="w-4 h-4" />
-            </div>
-            Kembali ke Beranda
-          </Link>
-        </div>
-      </nav>
+      <PublicSiteHeader />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col items-center py-16 lg:py-24 px-6 relative z-10">
+      <main className="relative z-10 flex flex-1 flex-col items-center px-6 py-24 pt-32 lg:py-24 lg:pt-36">
         <div className="w-full max-w-[840px]">
           
           {/* Hero Section */}

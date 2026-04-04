@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { generateSlug } from "@/lib/utils";
 import { Check, ArrowRight, Briefcase, Sparkles, UserCircle, Users, Compass, Zap, TrendingUp, Target, RefreshCw, CheckCircle2 } from "lucide-react";
 
-// Use completeOnboarding if available, otherwise simulate
-// import { completeOnboarding } from '@/features/onboarding/actions'
+import { completeOnboarding, checkUsernameAvailability as verifyUsername } from '@/features/onboarding/actions'
 
 const MATURITY_STAGES = [
   { id: "explore", label: "Masih Eksplorasi", icon: Compass, desc: "Belum tahu mau mulai dari mana", feedback: "Kami akan menyiapkan alur sederhana untuk membantu Anda mulai dari dasar." },
@@ -55,31 +54,25 @@ export default function OnboardingPage() {
     });
   }
 
-  // Mock slug availability check
-  const checkSlugAvailability = (slug: string) => {
+  // Real slug availability check
+  const checkSlugAvailability = async (slug: string) => {
     if (!slug) {
       setIsSlugAvailable(null);
       return;
     }
     setSlugChecking(true);
-    setTimeout(() => {
-      // Simulate that 'admin' or 'lynknov' is taken
-      if (slug === 'admin' || slug === 'lynknov') {
-        setIsSlugAvailable(false);
-      } else {
-        setIsSlugAvailable(true);
-      }
-      setSlugChecking(false);
-    }, 500);
+    const available = await verifyUsername(slug);
+    setIsSlugAvailable(available);
+    setSlugChecking(false);
   };
 
   async function handleFinish() {
     setLoading(true);
-    // Simulate API call to save onboarding data
-    setTimeout(() => {
+    const result = await completeOnboarding(form);
+    if (result?.error) {
+      alert(result.error);
       setLoading(false);
-      router.push("/dashboard");
-    }, 1500);
+    }
   }
 
   const nextStep = () => {
@@ -188,7 +181,9 @@ export default function OnboardingPage() {
                       isSlugAvailable === true ? 'border-[#34d399]/30 focus-within:border-[#34d399]/50' :
                       'border-white/10 focus-within:border-[#a78bfa]/50 focus-within:bg-white/[0.05]'
                     }`}>
-                      <span className={`px-4 select-none transition-colors ${isSlugAvailable === false ? 'text-red-400/70' : 'text-[var(--color-text-secondary)]'}`}>lynknov.com/</span>
+                      <span className={`px-4 select-none transition-colors ${isSlugAvailable === false ? 'text-red-400/70' : 'text-[var(--color-text-secondary)]'}`}>
+                        {typeof window !== 'undefined' ? window.location.host : 'lynknov.com'}/
+                      </span>
                       <input
                         id="username"
                         name="username"

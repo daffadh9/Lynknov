@@ -79,14 +79,16 @@ export function ProjectPortfolioSection({ profile }: ProjectPortfolioSectionProp
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full h-full"
                 >
-                  <Image
-                    src={featuredItem.imageUrl}
-                    alt={featuredItem.title}
-                    fill
-                    className="object-cover transition-transform duration-[2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stage:scale-[1.02] filter contrast-[1.05] opacity-90 mix-blend-luminosity group-hover/stage:mix-blend-normal"
-                    sizes="(max-width: 1024px) 100vw, 65vw"
-                    priority
-                  />
+                  {featuredItem.imageUrl && (
+                    <Image
+                      src={featuredItem.imageUrl}
+                      alt={featuredItem.title}
+                      fill
+                      className="object-cover transition-transform duration-[2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stage:scale-[1.02] filter contrast-[1.05] opacity-90 mix-blend-luminosity group-hover/stage:mix-blend-normal"
+                      sizes="(max-width: 1024px) 100vw, 65vw"
+                      priority
+                    />
+                  )}
                   <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.8)] pointer-events-none mix-blend-multiply opacity-50"></div>
                 </motion.div>
               </AnimatePresence>
@@ -189,13 +191,15 @@ export function ProjectPortfolioSection({ profile }: ProjectPortfolioSectionProp
                     >
                       {/* Visual Preview (Thumbnail) */}
                       <div className="relative w-[110px] md:w-[140px] aspect-[16/9] shrink-0 rounded-xl overflow-hidden bg-[#0A0A0A] border border-white/[0.08]">
-                         <Image
-                          src={item.imageUrl}
-                          alt={item.title}
-                          fill
-                          className="object-cover opacity-60 transition-all duration-[1s] group-hover:scale-110 group-hover:opacity-100 blur-[1px] group-hover:blur-0"
-                          sizes="(max-width: 768px) 110px, 140px"
-                        />
+                         {item.imageUrl && (
+                           <Image
+                            src={item.imageUrl}
+                            alt={item.title}
+                            fill
+                            className="object-cover opacity-60 transition-all duration-[1s] group-hover:scale-110 group-hover:opacity-100 blur-[1px] group-hover:blur-0"
+                            sizes="(max-width: 768px) 110px, 140px"
+                          />
+                         )}
                         
                         {/* View Hover Badge */}
                         <div className="absolute inset-0 m-auto w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-400 delay-75 shadow-lg border border-white/[0.1]">

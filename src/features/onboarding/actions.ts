@@ -39,6 +39,23 @@ async function resolveUniqueSlug(
   return `${baseSlug}-${Date.now().toString(36)}`
 }
 
+export async function checkUsernameAvailability(username: string): Promise<boolean> {
+  if (!username) return false
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('username', username)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Error checking username availability:', error)
+    return false
+  }
+
+  return !data // true if available (no data found)
+}
+
 export async function completeOnboarding(
   data: OnboardingData,
 ): Promise<{ error: string } | void> {

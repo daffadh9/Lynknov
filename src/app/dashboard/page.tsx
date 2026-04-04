@@ -19,12 +19,13 @@ import {
   Monitor
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 type DashboardMode = "freelancer" | "creator" | "consultant" | "business";
 type PreviewMode = "mobile" | "tablet" | "desktop";
 
 export default function DashboardPage() {
-  const readinessPercentage = 40;
+  const readinessPercentage = 80;
   const [activeMode, setActiveMode] = useState<DashboardMode>("freelancer");
   const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>("mobile");
@@ -33,8 +34,8 @@ export default function DashboardPage() {
   const workflows = {
     freelancer: [
       { id: 1, title: "Profil", status: "completed" },
-      { id: 2, title: "Penawaran", status: "active" },
-      { id: 3, title: "CTA", status: "pending" },
+      { id: 2, title: "Penawaran", status: "completed" },
+      { id: 3, title: "CTA", status: "active" },
       { id: 4, title: "Halaman Publik", status: "pending" },
       { id: 5, title: "Publikasikan", status: "pending" },
     ],
@@ -103,18 +104,18 @@ export default function DashboardPage() {
   ];
 
   const workspaceAssets = [
-    { name: "Halaman publik", status: "Draft" },
-    { name: "Penawaran utama", status: "Belum dibuat" },
+    { name: "Halaman publik", status: "Published" },
+    { name: "Penawaran utama", status: "Aktif" },
     { name: "CTA utama", status: "Belum diatur" },
     { name: "Form kontak", status: "Belum aktif" },
     { name: "Portfolio", status: "Kosong" }
   ];
 
   const readinessMetrics = [
-    { label: "Progress setup", value: "40%" },
-    { label: "Status halaman", value: "Draft" },
-    { label: "Kelengkapan profil", value: "Dasar" },
-    { label: "Kesiapan publish", value: "Belum siap" }
+    { label: "Progress setup", value: "80%" },
+    { label: "Status halaman", value: "Published" },
+    { label: "Kelengkapan profil", value: "Premium" },
+    { label: "Kesiapan publish", value: "Ready" }
   ];
 
   return (
@@ -131,16 +132,16 @@ export default function DashboardPage() {
             <div className="max-w-xl">
               <h1 className="text-3xl font-semibold tracking-tight text-white mb-2">Selamat datang kembali, Daffa</h1>
               <p className="text-[var(--color-text-secondary)] text-lg mb-6 leading-relaxed">
-                Workspace Anda sudah mulai terbentuk. Tinggal beberapa langkah lagi untuk menyelesaikan fondasi bisnis digital Anda.
+                Workspace Anda sudah aktif dan terhubung dengan database. Data mewah Anda sudah kami sinkronkan secara otomatis.
               </p>
               
               <div className="flex items-center gap-4">
-                <button className="h-11 px-6 rounded-xl bg-white text-black font-medium text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                  Lanjutkan Setup
-                </button>
-                <button className="h-11 px-6 rounded-xl bg-white/[0.04] border border-white/10 text-white font-medium text-sm transition-all duration-300 hover:bg-white/[0.08]">
-                  Lihat Draft
-                </button>
+                <Link href="/editor" className="h-11 px-6 rounded-xl bg-white text-black font-medium text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_15px_rgba(255,255,255,0.1)] flex items-center justify-center">
+                  Edit Halaman
+                </Link>
+                <Link href="/daffa" target="_blank" className="h-11 px-6 rounded-xl bg-white/[0.04] border border-white/10 text-white font-medium text-sm transition-all duration-300 hover:bg-white/[0.08] flex items-center justify-center">
+                  Lihat Live <ExternalLink className="w-3.5 h-3.5 ml-2" />
+                </Link>
               </div>
             </div>
 
@@ -219,7 +220,7 @@ export default function DashboardPage() {
                  layoutId="progress-line"
                  className="h-full bg-[#a78bfa]" 
                  initial={{ width: "0%" }}
-                 animate={{ width: "25%" }} // Active at step 2
+                 animate={{ width: "50%" }} 
                  transition={{ duration: 0.5, ease: "easeInOut" }}
                />
             </div>
@@ -260,7 +261,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Actions (Langkah Membangun) */}
+        {/* Quick Actions */}
         <div>
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-medium tracking-tight text-white">Langkah berikutnya</h2>
@@ -282,7 +283,6 @@ export default function DashboardPage() {
                     <div className={`mt-0.5 w-5 h-5 rounded-full shrink-0 flex items-center justify-center transition-all duration-300 ${
                       action.status === 'prioritas' ? 'border-2 border-[#a78bfa] group-hover:scale-110 shadow-[0_0_10px_rgba(167,139,250,0.3)]' : 'border-2 border-white/20 group-hover:border-white/50 group-hover:bg-white/5'
                     }`}>
-                      {/* Empty circle for uncompleted */}
                     </div>
                     
                     <div className="flex-1">
@@ -307,7 +307,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Foundation Metrics (Readiness, not growth) */}
+        {/* Foundation Metrics */}
         <div>
           <h2 className="text-xl font-medium tracking-tight text-white mb-5">Metrik Kesiapan</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -332,7 +332,7 @@ export default function DashboardPage() {
         <div className="rounded-2xl bg-[var(--color-surface-elevated)] border border-white/5 p-6 transition-all duration-300 hover:border-white/20 hover:shadow-lg group">
           <h3 className="text-base font-medium text-white mb-5 flex items-center justify-between">
             Status Aset
-            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]"></div>
           </h3>
           
           <div className="space-y-4">
@@ -343,143 +343,33 @@ export default function DashboardPage() {
                   {asset.name}
                 </div>
                 <div className={`text-[11px] font-medium px-2 py-1 rounded-md transition-all ${
-                  asset.status === 'Draft' ? 'bg-white/10 text-white group-hover/asset:bg-white/20' : 
-                  'bg-white/5 text-[var(--color-text-secondary)] group-hover/asset:bg-white/10 group-hover/asset:text-white/80'
+                  asset.status === 'Published' ? 'bg-emerald-500/20 text-emerald-400' : 
+                  'bg-white/5 text-[var(--color-text-secondary)]'
                 }`}>
                   {asset.status}
                 </div>
               </div>
             ))}
           </div>
-          
-          <div className="mt-6 pt-5 border-t border-white/5">
-             <div className="text-xs text-[var(--color-text-secondary)] mb-3 font-medium">Target berikutnya:</div>
-             <div className="text-sm font-medium text-white flex items-start gap-3 bg-gradient-to-br from-[#a78bfa]/10 to-transparent p-4 rounded-xl border border-[#a78bfa]/20 hover:border-[#a78bfa]/40 transition-colors cursor-pointer group/target">
-               <div className="w-1.5 h-1.5 rounded-full bg-[#a78bfa] mt-1.5 shrink-0 shadow-[0_0_8px_rgba(167,139,250,0.6)] group-hover/target:scale-125 transition-transform"></div>
-               <div>
-                 <p className="leading-snug">Selesaikan halaman publik agar siap dibagikan hari ini.</p>
-                 <button className="text-xs font-semibold text-[#a78bfa] mt-3 flex items-center transition-all group-hover/target:text-[#c4b5fd]">
-                   Lanjutkan edit <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover/target:translate-x-1" />
-                 </button>
-               </div>
-             </div>
-          </div>
         </div>
 
-        {/* Taller Live Preview Placeholder */}
-        <div className="rounded-2xl bg-[var(--color-surface-elevated)] border border-white/5 p-1 flex flex-col h-[500px] overflow-hidden relative">
-          
+        {/* Preview Area */}
+        <div className="rounded-2xl bg-[var(--color-surface-elevated)] border border-white/5 p-1 flex flex-col h-[400px] overflow-hidden relative group">
           <div className="h-10 px-4 flex items-center justify-between border-b border-white/5 bg-white/[0.02]">
-            <div className="flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-white/10 hover:bg-red-400/50 transition-colors"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/10 hover:bg-amber-400/50 transition-colors"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/10 hover:bg-green-400/50 transition-colors"></div>
-            </div>
-            
-            <div className="text-[10px] font-medium text-[var(--color-text-tertiary)] bg-black/40 px-3 py-1 rounded-md flex items-center gap-2 border border-white/5">
-              lynknov.com/daffa-studio
-            </div>
-            
-            {/* Device Switcher */}
-            <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-md border border-white/5">
-               <button 
-                 onClick={() => setPreviewMode("mobile")}
-                 className={`p-1 rounded transition-colors ${previewMode === "mobile" ? "bg-white/10 text-white" : "text-white/40 hover:text-white"}`}
-               >
-                 <Smartphone className="w-3 h-3" />
-               </button>
-               <button 
-                 onClick={() => setPreviewMode("tablet")}
-                 className={`p-1 rounded transition-colors ${previewMode === "tablet" ? "bg-white/10 text-white" : "text-white/40 hover:text-white"}`}
-               >
-                 <Tablet className="w-3 h-3" />
-               </button>
-               <button 
-                 onClick={() => setPreviewMode("desktop")}
-                 className={`p-1 rounded transition-colors ${previewMode === "desktop" ? "bg-white/10 text-white" : "text-white/40 hover:text-white"}`}
-               >
-                 <Monitor className="w-3 h-3" />
-               </button>
-            </div>
+             <div className="flex gap-1.5">
+               <div className="w-2 h-2 rounded-full bg-white/10"></div>
+               <div className="w-2 h-2 rounded-full bg-white/10"></div>
+               <div className="w-2 h-2 rounded-full bg-white/10"></div>
+             </div>
+             <div className="text-[10px] font-medium text-white/20">localhost:3000/daffa</div>
           </div>
-          
-          <div className="flex-1 bg-[#0a0a0b] relative flex items-center justify-center p-4 overflow-hidden group">
-            
-            {/* The actual preview container that scales based on mode */}
-            <motion.div 
-              layout
-              initial={false}
-              animate={{ 
-                width: previewMode === "mobile" ? 240 : previewMode === "tablet" ? 320 : 380,
-                height: previewMode === "desktop" ? 260 : 420,
-                borderRadius: previewMode === "desktop" ? 12 : 32
-              }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="bg-[var(--color-surface-elevated)] border border-white/10 flex flex-col overflow-hidden relative shadow-2xl"
-            >
-              <AnimatePresence mode="wait">
-                {previewMode === "desktop" ? (
-                  <motion.div 
-                    key="desktop"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex flex-col w-full h-full p-5 gap-5 opacity-40 transition-opacity group-hover:opacity-20"
-                  >
-                    {/* Top Nav Desktop */}
-                    <div className="flex justify-between items-center w-full border-b border-white/5 pb-4">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-white/10 to-white/30 border border-white/10"></div>
-                      <div className="flex gap-4">
-                        <div className="w-12 h-2 bg-white/10 rounded"></div>
-                        <div className="w-12 h-2 bg-white/10 rounded"></div>
-                        <div className="w-12 h-2 bg-white/10 rounded"></div>
-                      </div>
-                    </div>
-                    {/* 2 Cols Content */}
-                    <div className="flex gap-6 flex-1">
-                      <div className="flex-1 flex flex-col justify-center gap-3">
-                        <div className="w-5/6 h-5 bg-white/20 rounded-md"></div>
-                        <div className="w-1/2 h-5 bg-white/20 rounded-md"></div>
-                        <div className="w-full h-2 bg-white/10 rounded mt-2"></div>
-                        <div className="w-4/5 h-2 bg-white/10 rounded"></div>
-                        <div className="w-24 h-8 bg-white/10 rounded-lg mt-2 border border-white/5"></div>
-                      </div>
-                      <div className="w-[120px] h-full bg-gradient-to-b from-white/[0.05] to-transparent rounded-xl border border-white/5"></div>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    key="mobile-tablet"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex flex-col items-center w-full h-full pt-10 p-5 gap-5 opacity-40 transition-opacity group-hover:opacity-20"
-                  >
-                     <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-white/10 to-white/30 border border-white/10 shadow-lg"></div>
-                     
-                     <div className="flex flex-col gap-2 w-full items-center">
-                       <div className="w-3/4 h-4 rounded-md bg-white/20"></div>
-                       <div className="w-1/2 h-2 rounded bg-white/10"></div>
-                     </div>
-                     
-                     <div className="w-full space-y-3 mt-4">
-                       <div className="w-full h-12 rounded-xl bg-white/[0.08] border border-white/5"></div>
-                       <div className="w-full h-12 rounded-xl bg-white/[0.05] border border-white/5"></div>
-                       <div className="w-full h-28 rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent"></div>
-                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              {/* Edit overlay that appears on hover of the container */}
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
-                 <button className="h-10 px-6 rounded-xl bg-white text-black text-sm font-medium hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center gap-2">
-                   Edit Halaman <ExternalLink className="w-4 h-4" />
-                 </button>
-              </div>
-            </motion.div>
+          <div className="flex-1 bg-black/40 flex items-center justify-center p-6 relative">
+             <div className="w-full h-full border border-white/10 rounded-xl bg-white/[0.02] flex flex-col items-center justify-center gap-4 text-center opacity-40 group-hover:opacity-100 transition-opacity">
+               <Monitor className="w-10 h-10 text-white/10 group-hover:text-[#a78bfa] transition-colors" />
+               <Link href="/daffa" target="_blank" className="text-xs font-semibold text-[#a78bfa] flex items-center hover:underline">
+                 Lihat Pratinjau Halaman <ExternalLink className="w-3 h-3 ml-1.5" />
+               </Link>
+             </div>
           </div>
         </div>
 

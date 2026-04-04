@@ -6,9 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   UserCircle,
-  Briefcase,
-  Users,
-  BarChart3,
   Settings,
   LogOut,
   ExternalLink,
@@ -18,15 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
-
-const NAV = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Halaman Saya", href: "/dashboard/profile", icon: UserCircle },
-  { name: "Offers", href: "/dashboard/offers", icon: Briefcase },
-  { name: "Leads", href: "/dashboard/leads", icon: Users },
-  { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
-];
+import { appPrimaryNav } from "@/lib/site-navigation";
 
 const SIDEBAR_EXPANDED = 256;
 const SIDEBAR_COLLAPSED = 68;
@@ -151,7 +140,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Navigation */}
         <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden" style={{ padding: collapsed ? "16px 10px" : "16px 10px" }}>
           <div className="flex flex-col gap-0.5">
-            {NAV.map((item) => {
+            {appPrimaryNav.map((item) => {
               const isActive =
                 item.href === "/dashboard"
                   ? pathname === "/dashboard"

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { cn } from "@/lib/cn";
 import { ProfileData } from "../types/profile";
 import { PrimaryButton } from "../ui/primary-button";
 import { ArrowUpRight, Play } from "lucide-react";
@@ -8,6 +9,7 @@ import { motion } from "framer-motion";
 
 interface HeroSectionProps {
   profile: ProfileData;
+  previewMode?: boolean;
 }
 
 const VerifiedIcon = ({ className }: { className?: string }) => (
@@ -17,9 +19,17 @@ const VerifiedIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export function HeroSection({ profile }: HeroSectionProps) {
+export function HeroSection({ profile, previewMode = false }: HeroSectionProps) {
+  const highlightToken = "Impact Nyata";
+  const headlineParts = profile.headline.includes(highlightToken)
+    ? profile.headline.split(highlightToken)
+    : null;
+
   return (
-    <section className="relative w-full min-h-[90vh] pt-24 pb-20 md:pt-32 md:pb-28 lg:pt-40 lg:pb-32 overflow-hidden bg-[#030303]">
+    <section className={cn(
+      "relative w-full overflow-hidden bg-[#030303]",
+      previewMode ? "min-h-[60vh] pt-12 pb-10" : "min-h-[80vh] pt-12 pb-10 md:pt-32 md:pb-28 lg:pt-40 lg:pb-32"
+    )}>
       {/* 
         PREMIUM HERO BACKGROUND (Family 1) — Cinematic Hero Atmosphere
         Radial dark gradient, vertical streaks, subtle glow, slight pulse.
@@ -57,19 +67,32 @@ export function HeroSection({ profile }: HeroSectionProps) {
         className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-fuchsia-500/[0.03] via-transparent to-transparent blur-[100px] pointer-events-none z-0"
       ></motion.div>
 
-      <div className="mx-auto max-w-[1240px] px-6 md:px-12 xl:px-16 relative z-10 flex flex-col justify-center h-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 items-center">
+      <div className="mx-auto max-w-[1240px] px-5 md:px-12 xl:px-16 relative z-10 flex flex-col justify-center h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
           {/* LEFT: EDITORIAL TYPOGRAPHY & COMMAND */}
-          <div className="order-2 lg:order-1 lg:col-span-7 flex flex-col items-start xl:pr-8">
+          <div className="order-2 lg:order-1 lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left xl:pr-8">
             <motion.h1
               initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[3rem] leading-[1.05] tracking-tight md:text-6xl lg:text-[4.5rem] xl:text-[5rem] font-bold text-white mb-8 max-w-[800px] text-balance"
+              className="text-3xl sm:text-4xl leading-[1.1] tracking-tight md:text-6xl lg:text-[4.5rem] xl:text-[5rem] font-bold text-white mb-4 md:mb-8 max-w-[800px] text-balance"
             >
-              {profile.headline.split("Impact Nyata").map((t, i) =>
-                i === 0 ? <span key={i}>{t}<span className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-[#FFFFFF] via-[#D1D5DB] to-[#374151] drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] filter saturate-0 contrast-125">Impact Nyata</span></span> : t
+              {headlineParts ? (
+                headlineParts.map((part, index) =>
+                  index === 0 ? (
+                    <span key={index}>
+                      {part}
+                      <span className="inline-block text-transparent bg-clip-text bg-gradient-to-b from-[#FFFFFF] via-[#D1D5DB] to-[#374151] drop-shadow-[0_0_20px_rgba(255,255,255,0.15)] filter saturate-0 contrast-125">
+                        {highlightToken}
+                      </span>
+                    </span>
+                  ) : (
+                    part
+                  ),
+                )
+              ) : (
+                profile.headline
               )}
             </motion.h1>
 
@@ -77,7 +100,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
               initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg md:text-xl text-zinc-400 leading-[1.6] max-w-[580px] mb-14 font-medium text-balance"
+              className="text-sm sm:text-base md:text-xl text-zinc-400 leading-relaxed max-w-[580px] mb-8 md:mb-14 font-medium text-balance px-4 sm:px-0"
             >
               {profile.bio}
             </motion.p>
@@ -86,11 +109,11 @@ export function HeroSection({ profile }: HeroSectionProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-5 w-full sm:w-auto"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto"
             >
               <PrimaryButton
                 href={profile.primaryCta.url}
-                className="group relative h-16 px-10 rounded-2xl bg-white text-black font-bold text-base hover:scale-[1.02] transition-transform duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)] flex items-center justify-center gap-3 overflow-hidden"
+                className="group relative h-14 md:h-16 px-8 md:px-10 rounded-xl md:rounded-2xl bg-white text-black font-bold text-base hover:scale-[1.02] transition-transform duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)] flex items-center justify-center gap-3 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <span className="relative z-10">{profile.primaryCta.label}</span>
@@ -98,7 +121,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
               </PrimaryButton>
 
               {profile.secondaryCta && (
-                <a href={profile.secondaryCta.url} className="group h-16 px-8 rounded-2xl border border-white/[0.1] bg-white/[0.02] flex items-center justify-center gap-3 text-white font-semibold hover:bg-white/[0.05] hover:border-white/[0.2] transition-colors">
+                <a href={profile.secondaryCta.url} className="group h-14 md:h-16 px-7 md:px-8 rounded-xl md:rounded-2xl border border-white/[0.1] bg-white/[0.02] flex items-center justify-center gap-3 text-white font-semibold hover:bg-white/[0.05] hover:border-white/[0.2] transition-colors">
                   <Play className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors" fill="currentColor" />
                   <span>{profile.secondaryCta.label}</span>
                 </a>
@@ -114,11 +137,11 @@ export function HeroSection({ profile }: HeroSectionProps) {
             className="order-1 lg:order-2 lg:col-span-5 w-full flex flex-col items-center justify-center relative"
           >
 
-            <div className="relative w-full max-w-[400px] group flex flex-col items-center z-10">
+            <div className="relative w-full max-w-[280px] sm:max-w-[320px] md:max-w-[400px] group flex flex-col items-center z-10">
 
               {/* Premium Thick Frame Layout */}
               <div
-                className={`relative w-full aspect-[3/4] p-3 md:p-4 rounded-[2.5rem] bg-gradient-to-b from-[#1C1C1F] to-[#0A0A0C] border shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transform transition-all duration-700 hover:scale-[1.02] cursor-pointer ${profile.hasStory ? 'border-fuchsia-500/50 hover:border-fuchsia-400 shadow-[0_0_40px_rgba(217,70,239,0.15)] ring-2 ring-offset-4 ring-offset-[#030303] ring-fuchsia-500/40 animate-[pulse_4s_ease-in-out_infinite]' : 'border-white/[0.05] hover:border-white/[0.1]'}`}
+                className={`relative w-full aspect-[4/5] md:aspect-[3/4] p-3 md:p-4 rounded-[2rem] md:rounded-[2.5rem] bg-gradient-to-b from-[#1C1C1F] to-[#0A0A0C] border shadow-[0_30px_80px_rgba(0,0,0,0.6)] md:shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden transform transition-all duration-700 hover:scale-[1.02] cursor-pointer ${profile.hasStory ? 'border-fuchsia-500/50 hover:border-fuchsia-400 shadow-[0_0_40px_rgba(217,70,239,0.15)] ring-2 ring-offset-4 ring-offset-[#030303] ring-fuchsia-500/40 animate-[pulse_4s_ease-in-out_infinite]' : 'border-white/[0.05] hover:border-white/[0.1]'}`}
                 onClick={() => {
                   if (profile.hasStory) {
                     alert('Open Story Viewer (V2 Feature)');
@@ -147,34 +170,34 @@ export function HeroSection({ profile }: HeroSectionProps) {
               </div>
 
               {/* Name & Title Identity (Positioned Bottom Center) */}
-              <div className="flex flex-col items-center text-center mt-8 gap-2 w-full">
+              <div className="flex flex-col items-center text-center mt-6 md:mt-8 gap-1.5 md:gap-2 w-full">
 
                 {/* Availability Badge Row */}
-                <div className="flex items-center justify-center gap-3 w-full mb-1">
+                <div className="flex items-center justify-center gap-2 md:gap-3 w-full mb-1">
                   {profile.availability && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/[0.08] bg-white/[0.02] text-[10px] font-bold uppercase tracking-widest text-[#A1A1AA] hover:text-white transition-colors">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-white/[0.08] bg-white/[0.02] text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-[#A1A1AA] hover:text-white transition-colors">
+                      <span className="w-1 h-1 md:w-1.5 md:h-1.5 rounded-full bg-blue-500"></span>
                       {profile.availability.text}
                     </div>
                   )}
 
                   {profile.onlineStatus && profile.onlineStatus.isOnline && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-                      <span className="relative flex h-2 w-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                      <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-emerald-500"></span>
                       </span>
                       Active
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-center w-full max-w-[400px]">
-                  <h2 className="text-2xl md:text-[28px] font-black tracking-tight text-white font-serif whitespace-nowrap truncate mr-2">{profile.name}</h2>
-                  <VerifiedIcon className="w-6 h-6 md:w-7 md:h-7 shrink-0 drop-shadow-[0_0_12px_rgba(56,151,240,0.6)]" />
+                <div className="flex items-center justify-center w-full max-w-[320px] md:max-w-[400px]">
+                  <h2 className="text-xl md:text-[28px] font-black tracking-tight text-white font-serif whitespace-nowrap truncate mr-2">{profile.name}</h2>
+                  <VerifiedIcon className="w-5 h-5 md:w-7 md:h-7 shrink-0 drop-shadow-[0_0_12px_rgba(56,151,240,0.6)]" />
                 </div>
 
-                <p className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-500 font-bold tracking-widest uppercase text-xs md:text-[13px] text-center max-w-[300px]">
+                <p className="text-transparent bg-clip-text bg-gradient-to-r from-zinc-300 to-zinc-500 font-bold tracking-widest uppercase text-[10px] md:text-[13px] text-center max-w-[280px] md:max-w-[300px]">
                   {profile.role}
                 </p>
               </div>

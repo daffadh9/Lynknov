@@ -4,7 +4,17 @@
 export type PageStatus = 'draft' | 'published' | 'archived'
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'closed'
 export type AnalyticsEventType = 'page_view' | 'cta_click' | 'lead_submit'
-export type SectionType = 'hero' | 'about' | 'portfolio' | 'cta'
+export type SectionType =
+  | 'hero'
+  | 'about'
+  | 'digital_presence'
+  | 'showcase'
+  | 'storyboard'
+  | 'portfolio'
+  | 'link_hub'
+  | 'testimonials'
+  | 'contact'
+  | 'footer'
 
 export interface Profile {
   id: string // uuid, mirrors auth.users.id
@@ -28,6 +38,7 @@ export interface PublicPage {
   title: string
   subtitle: string | null
   theme_key: string | null
+  settings: Record<string, unknown>
   status: PageStatus
   is_primary: boolean
   seo_title: string | null

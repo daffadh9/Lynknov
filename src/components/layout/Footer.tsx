@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -32,10 +32,9 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <h3 className="text-[13px] font-semibold tracking-wider uppercase text-white/90 mb-1">Product</h3>
             <ul className="flex flex-col gap-3">
-              <li><Link href="/#features" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Features</Link></li>
-              <li><Link href="/#pricing" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Pricing</Link></li>
+              <li><Link href="/features" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Features</Link></li>
+              <li><Link href="/demo" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Demo</Link></li>
               <li><Link href="/changelog" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Changelog</Link></li>
-              <li><Link href="/login" className="text-[14px] text-[var(--color-text-secondary)] hover:text-white transition-colors">Login</Link></li>
             </ul>
           </div>
 
@@ -74,3 +73,5 @@ export function Footer() {
     </footer>
   );
 }
+
+

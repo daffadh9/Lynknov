@@ -1,18 +1,11 @@
-import { getProfileByUsername } from "@/components/profile/data/mock-profile";
 import { ProfileShell } from "@/components/profile/ui/profile-shell";
-import { HeroSection } from "@/components/profile/sections/hero-section";
-import { ConnectSection } from "@/components/profile/sections/connect-section";
-import { AboutSection } from "@/components/profile/sections/about-section";
-import { ShowcaseSection } from "@/components/profile/sections/showcase-section";
-import { ProjectPortfolioSection } from "@/components/profile/sections/project-portfolio";
-import { GallerySection } from "@/components/profile/sections/gallery-section";
-import { LinkHubSection } from "@/components/profile/sections/link-hub";
-import { TestimonialsSection } from "@/components/profile/sections/testimonials-section";
 import { ContactSection } from "@/components/profile/sections/contact-section";
-import { SpotlightSection } from "@/components/profile/sections/spotlight-section";
-import { StoryboardSection } from "@/components/profile/sections/storyboard-section";
 import { ScrollProgress } from "@/components/profile/ui/scroll-progress";
+import { ProfileRenderer } from "@/components/profile/profile-renderer";
 import { Metadata } from "next";
+import { getPublicProfile } from "@/features/profile/actions";
+import { mapSectionsToProfileData } from "@/lib/profile-mapper";
+import { mockProfile } from "@/components/profile/data/mock-profile";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -22,13 +15,21 @@ interface ProfilePageProps {
 
 export async function generateMetadata({ params }: ProfilePageProps): Promise<Metadata> {
   const resolvedParams = await params;
-  const profile = getProfileByUsername(resolvedParams.username);
+  const data = await getPublicProfile(resolvedParams.username);
 
-  if (!profile) {
+  if (!data) {
+    if (resolvedParams.username === 'daffa') {
+      return {
+        title: `${mockProfile.name} — ${mockProfile.role}`,
+        description: mockProfile.headline,
+      };
+    }
     return {
       title: "Profile Not Found | Lynknov",
     };
   }
+
+  const profile = mapSectionsToProfileData(data.profile, data.sections, data.workspaceState);
 
   return {
     title: `${profile.name} — ${profile.role}`,
@@ -38,7 +39,11 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const resolvedParams = await params;
-  const profile = getProfileByUsername(resolvedParams.username);
+  const data = await getPublicProfile(resolvedParams.username);
+  
+  const profile = data 
+    ? mapSectionsToProfileData(data.profile, data.sections, data.workspaceState)
+    : (resolvedParams.username === 'daffa' ? mockProfile : null);
 
   if (!profile) {
     return (
@@ -55,16 +60,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     <>
       <ScrollProgress />
       <ProfileShell>
-        <HeroSection profile={profile} />
-        <AboutSection profile={profile} />
-        <SpotlightSection profile={profile} />
-        <GallerySection profile={profile} />
-        <ConnectSection profile={profile} />
-        <ShowcaseSection profile={profile} />
-        <StoryboardSection profile={profile} />
-        <ProjectPortfolioSection profile={profile} />
-        <LinkHubSection profile={profile} />
-        <TestimonialsSection profile={profile} />
+        <ProfileRenderer profile={profile} />
         <ContactSection profile={profile} />
       </ProfileShell>
     </>
