@@ -30,13 +30,15 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
   const showTrust = settings.showTrustText !== false;
 
   // Layout stacking: mobile + tablet + alignment center → stacked column (flex-col).
-  // Verified badge position derived dari stacking state, bukan dari `isMobile` saja,
-  // supaya konsisten dengan layout dan tidak fragile saat breakpoint berubah.
+  // Verified badge slot:
+  // - stacked mode : DEDICATED row tersendiri di antara badge row dan name row.
+  //                  Tidak share dengan badge row atau name row → tidak akan pernah
+  //                  bentrok dengan nama user sepanjang apapun.
+  // - desktop non-stacked : inline sibling di h1 (seperti centang IG).
   const isCenterAlign = alignment === "center";
   const isStacked = isMobile || isTablet || isCenterAlign;
-  const verifiedPosition: "badgeRow" | "nameRow" = isStacked ? "badgeRow" : "nameRow";
-  const showVerifiedInBadgeRow = showVerified && verifiedPosition === "badgeRow";
-  const showVerifiedInNameRow = showVerified && verifiedPosition === "nameRow";
+  const showVerifiedStandalone = showVerified && isStacked;
+  const showVerifiedInNameRow = showVerified && !isStacked;
 
   const palette = {
     emerald: { text: "text-emerald-400", bg: "bg-emerald-500", border: "border-emerald-500/20", glow: "rgba(16,185,129,0.15)", strongGlow: "rgba(16,185,129,0.4)", gradient: "from-emerald-500/20" },
@@ -213,15 +215,16 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
             </div>
           )}
 
-          {/* IDENTITY TEXT CLUSTER */}
-          <div className={cn("flex flex-col gap-1.5 w-full", identityAlign)}>
+          {/* IDENTITY TEXT CLUSTER
+              Hirarki final: [Badge (opsional)] → [Verified standalone (stacked)] → [Nama] → [Role]
+              Gap antar elemen lebih lega (gap-2) supaya di mobile tidak terlihat padat. */}
+          <div className={cn("flex flex-col gap-2 w-full", identityAlign)}>
             
             {showBadge && content.badgeText && (
               <div
                 className={cn(
-                  "w-full flex items-center gap-2",
-                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end",
-                  isMobile ? "mb-1.5" : isTablet ? "mb-2" : "mb-2.5"
+                  "w-full flex items-center",
+                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
                 )}
               >
                 <span
@@ -233,45 +236,68 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
                 >
                   {content.badgeText}
                 </span>
+              </div>
+            )}
 
-                {showVerifiedInBadgeRow && (
-                  <span className="inline-flex shrink-0 items-center justify-center leading-none">
-                    <VerifiedIcon
-                      className="w-[15px] h-[15px] drop-shadow-[0_0_10px_rgba(56,151,240,0.45)]"
-                    />
-                  </span>
+            {/* DEDICATED VERIFIED ROW (stacked mode only).
+                Independen dari badge — tetap tampil walau user tidak pasang badgeText.
+                Fully terpisah dari name row, jadi TIDAK MUNGKIN bentrok dengan nama. */}
+            {showVerifiedStandalone && (
+              <div
+                className={cn(
+                  "w-full flex items-center",
+                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
                 )}
+              >
+                <VerifiedIcon
+                  className={cn(
+                    "drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
+                    isMobile ? "w-[18px] h-[18px]" : "w-[22px] h-[22px]"
+                  )}
+                />
               </div>
             )}
             
             {/* NAME ROW
-                Struktur minimal & aman: h1 jadi flex container, name span pakai
-                `truncate` (bukan `whitespace-nowrap`) supaya overflow jadi ellipsis,
-                verified icon sibling dengan `shrink-0` di luar flow truncate →
-                ikon tidak pernah bisa ketindih/tumpang huruf nama.
-                Wrapper max-w lama dihapus karena bentrok dengan lebar identity column. */}
-            <h1
-              className={cn(
-                "font-black flex items-center gap-2 tracking-tighter leading-none w-full max-w-full min-w-0",
-                isStacked ? "justify-center text-center" : isRight ? "justify-start text-left" : "justify-end text-right",
-                isMobile ? "text-[1.15rem]" : isTablet ? "text-[1.5rem]" : "text-[2rem]",
-                isLightMode ? "text-black" : "text-white"
-              )}
-              title={content.name || "Nama Anda"}
-            >
-              <span className="truncate min-w-0">
+                Dua cabang perilaku:
+                - stacked: tidak ada verified di sini, nama boleh wrap natural
+                  (line-clamp-2, break-words). Nama panjang akan pecah jadi 2 baris
+                  dengan indah, BUKAN terpotong ellipsis apalagi bentrok ikon.
+                - desktop non-stacked: h1 jadi flex container, span nama truncate,
+                  VerifiedIcon sibling shrink-0 (style centang IG klasik). */}
+            {isStacked ? (
+              <h1
+                className={cn(
+                  "font-black tracking-tight leading-[1.15] w-full break-words line-clamp-2",
+                  "text-center",
+                  isMobile ? "text-[1.1rem]" : isTablet ? "text-[1.45rem]" : "text-[2rem]",
+                  isLightMode ? "text-black" : "text-white"
+                )}
+                title={content.name || "Nama Anda"}
+              >
                 {content.name || "Nama Anda"}
-              </span>
+              </h1>
+            ) : (
+              <h1
+                className={cn(
+                  "font-black flex items-center gap-2 tracking-tighter leading-none w-full max-w-full min-w-0",
+                  isRight ? "justify-start text-left" : "justify-end text-right",
+                  "text-[2rem]",
+                  isLightMode ? "text-black" : "text-white"
+                )}
+                title={content.name || "Nama Anda"}
+              >
+                <span className="truncate min-w-0">
+                  {content.name || "Nama Anda"}
+                </span>
 
-              {showVerifiedInNameRow && (
-                <VerifiedIcon
-                  className={cn(
-                    "shrink-0 drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
-                    isTablet ? "w-[20px] h-[20px]" : "w-[24px] h-[24px]"
-                  )}
-                />
-              )}
-            </h1>
+                {showVerifiedInNameRow && (
+                  <VerifiedIcon
+                    className="shrink-0 w-[24px] h-[24px] drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]"
+                  />
+                )}
+              </h1>
+            )}
 
             {/* ROLE ROW (Premium Silver Gradient)
                 line-clamp-1 di semua device — tidak pernah terpotong aneh di
@@ -318,7 +344,7 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
           <div className={cn(
             "flex flex-wrap items-center w-full",
             isMobile ? "gap-2" : "gap-3",
-            isCenter ? "justify-center" : isRight ? "justify-end" : "justify-start" 
+            isStacked ? "justify-center" : isRight ? "justify-end" : "justify-start" 
           )}>
             <button className={cn(
               "rounded-xl font-black uppercase tracking-widest transition-all active:scale-95",

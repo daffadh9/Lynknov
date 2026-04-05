@@ -252,7 +252,7 @@ export function EditorPreview(props: EditorPreviewProps) {
   //                 ResizeObserver). Outer canvas scroll akan muncul otomatis
   //                 jika tinggi wrapper (= logicalH * scale) > canvas height.
   const logicalH = scrollMode === "device"
-    ? Math.max(innerH, mockupContentHeight + currentPreset.overhead * 2)
+    ? Math.max(400, mockupContentHeight + currentPreset.overhead * 2)
     : innerH;
 
   return (
