@@ -10,7 +10,9 @@ import { EditorStructuralPreview } from "./editor-structural-preview";
 type DeviceType = "mobile" | "tablet" | "desktop";
 type LayoutMode = "focus-edit" | "balanced" | "focus-preview";
 type ScrollMode = "content" | "device";
-type ZoomLevel = 25 | 50 | 75 | 100 | 125 | "fit";
+type ZoomLevel = number | "fit";
+
+const ZOOM_STEPS = [25, 50, 75, 100, 125, 150] as const;
 
 interface EditorPreviewProps {
   sections: EditorSection[];
@@ -25,21 +27,29 @@ interface EditorPreviewProps {
 }
 
 // ── PRESET DIMENSIONS (Premium Viewport Simulators) ──────────────────────
+// `overhead` = visual px yang terpakai di luar border box karena ring + shadow spread.
+// Nilai ini WAJIB dihitung ke dalam dimensi wrapper agar mockup tidak meluber.
+// mobile:  ring-[12px] + shadow spread 13px = 25
+// tablet:  ring-[16px] + shadow spread 17px = 33
+// desktop: ring-1 (+ blur shadow tanpa spread) = 2 (buffer kecil)
 const DEVICE_PRESETS = {
   mobile: {
     width: 390,
     height: 844,
     borderRadius: 44,
+    overhead: 25,
   },
   tablet: {
     width: 820,
     height: 1180,
     borderRadius: 32,
+    overhead: 33,
   },
   desktop: {
-    width: 1280, 
+    width: 1280,
     height: 800,
     borderRadius: 16,
+    overhead: 2,
   }
 };
 
@@ -152,11 +162,20 @@ export function EditorPreview(props: EditorPreviewProps) {
   
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const mockupContentRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [mockupContentHeight, setMockupContentHeight] = useState(0);
   const [scrollMode, setScrollMode] = useState<ScrollMode>("content");
 
   const currentPreset = DEVICE_PRESETS[device];
-  const [zoomLevel, setZoomLevel] = useState<number | "fit">("fit");
+  const [zoomLevel, setZoomLevel] = useState<ZoomLevel>("fit");
+
+  // Reset zoom ke fit setiap kali user ganti device atau mode layout
+  // agar scale tidak "terjebak" di angka yang tak lagi ideal untuk konteks baru.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setZoomLevel("fit");
+  }, [device, layoutMode]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -172,66 +191,69 @@ export function EditorPreview(props: EditorPreviewProps) {
     return () => observer.disconnect();
   }, []);
 
-  // ── SIZING LOGIC: OCCUPANCY OPTIMIZATION ─────────────────────────────────
-  const { scale, safePaddingV } = useMemo(() => {
-    if (!containerSize.width || !containerSize.height) {
-      return { scale: 1, safePaddingV: 0 };
-    }
-    
-    const isFocus = layoutMode === "focus-preview";
-    const isBalanced = layoutMode === "balanced";
-    
-    // Base Safe Padding
-    let padH = isFocus ? 64 : 24;
-    let padV = isFocus ? 64 : 32;
+  // Observasi tinggi konten natural DI DALAM mockup (setelah unclamped).
+  // Dipakai HANYA saat scrollMode === "device" untuk menentukan tinggi wrapper
+  // supaya seluruh mockup memanjang mengikuti konten → outer canvas scroll aktif.
+  useEffect(() => {
+    const el = mockupContentRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry) return;
+      setMockupContentHeight(entry.contentRect.height);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [device, scrollMode]);
 
-    // Per-device & per-mode tuning to ensure optimal fit
-    if (isBalanced) {
-      if (device === "mobile") {
-        padH = 24; // Less horizontal padding so mobile can be tall
-        padV = 32; 
-      } else if (device === "tablet") {
-        padH = 32;
-        padV = 32;
-      } else if (device === "desktop") {
-        padH = 24; // Prioritize width occupancy for desktop in balanced mode
-        padV = 24;
-      }
-    } else {
-      if (device === "mobile" || device === "tablet") {
-        padH = 64;
-        padV = 64; // Generous breathing room for focus mode
-      } else {
-        padH = 80;
-        padV = 64;
-      }
-    }
+  // ── SIZING LOGIC: RING-AWARE FIT + ORTHOGONAL ZOOM ───────────────────────
+  // innerW/innerH = bounding box VISUAL mockup (termasuk ring + shadow spread).
+  // Ini yang dipakai untuk perhitungan scale supaya ring tidak meluber di luar wrapper.
+  const innerW = currentPreset.width + currentPreset.overhead * 2;
+  const innerH = currentPreset.height + currentPreset.overhead * 2;
+
+  const scale = useMemo(() => {
+    if (!containerSize.width || !containerSize.height) return 1;
+
+    // Padding breathing room dari stage ke mockup (dihitung sekali di sini,
+    // tidak diduplikasi di JSX margin). Focus-preview butuh breathing lebih.
+    const isFocus = layoutMode === "focus-preview";
+    const padH = isFocus ? 64 : 24;
+    const padV = isFocus ? 48 : 24;
 
     const availableWidth = Math.max(0, containerSize.width - padH * 2);
     const availableHeight = Math.max(0, containerSize.height - padV * 2);
 
-    const scaleX = availableWidth / currentPreset.width;
-    const scaleY = availableHeight / currentPreset.height;
+    // Fit calculation memakai innerW/innerH (BUKAN preset.width/height mentah)
+    // supaya ring + shadow masuk hitungan.
+    const fitScaleX = availableWidth / innerW;
+    const fitScaleY = availableHeight / innerH;
 
-    const baseFitScale = Math.min(scaleX, scaleY);
-
-    const fitScale =
-      scrollMode === "device"
-        ? Math.min(baseFitScale, device === "desktop" ? 0.92 : 1)
-        : baseFitScale;
-
-    let finalScale = fitScale;
-
+    // Manual zoom overrides fit. Dibiarkan literal (100% = 1.0x actual).
+    // Container luar akan otomatis scroll lewat overflow-auto kalau mockup > container.
     if (zoomLevel !== "fit") {
-      finalScale = fitScale * (zoomLevel / 100);
+      return zoomLevel / 100;
     }
 
-    if (device === "desktop" && layoutMode === "focus-preview") {
-      finalScale = Math.min(finalScale, 0.92);
+    // Fit mode: scale bergantung pada scrollMode.
+    // - content: mockup WAJIB muat utuh (width & height), konten di dalam yang scroll.
+    // - device : mockup pakai fitScaleX murni (tinggi dinamis mengikuti konten),
+    //            tinggi yang overflow ditangani oleh outer canvas scroll.
+    // Cap 1.0 agar tidak upscaling ugly di layar besar saat focus-preview.
+    if (scrollMode === "device") {
+      return Math.min(fitScaleX, 1);
     }
+    return Math.min(fitScaleX, fitScaleY, 1);
+  }, [containerSize, innerW, innerH, layoutMode, scrollMode, zoomLevel]);
 
-    return { scale: finalScale, safePaddingV: padV };
-  }, [containerSize, currentPreset, layoutMode, device, scrollMode, zoomLevel]);
+  // Tinggi "logis" motion.div sebelum scale.
+  // - content mode: tetap innerH (device height fisik, konten scroll di dalam).
+  // - device mode : max(innerH, mockupContentHeight + overhead*2) agar mockup
+  //                 memanjang menelan seluruh konten (mockupContentHeight dari
+  //                 ResizeObserver). Outer canvas scroll akan muncul otomatis
+  //                 jika tinggi wrapper (= logicalH * scale) > canvas height.
+  const logicalH = scrollMode === "device"
+    ? Math.max(innerH, mockupContentHeight + currentPreset.overhead * 2)
+    : innerH;
 
   return (
     <div className="flex flex-col h-full min-h-0 w-full relative bg-[#060709]">
@@ -263,147 +285,174 @@ export function EditorPreview(props: EditorPreviewProps) {
 
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060709]/40 to-[#030304] pointer-events-none" /> {/* Depth */}
 
-        {/* PREVIEW STAGE */}
-        {/* If scrollMode is "device" OR we are zoomed in, the stage itself allows scrolling */}
+        {/* PREVIEW STAGE
+            Arsitektur:
+            - containerRef = outer scroll area, overflow-auto selalu (browser cuma munculkan
+              scrollbar kalau isinya > container).
+            - stage = min-w-full min-h-full flex center. Memastikan frame ter-center saat fit,
+              dan tumbuh + breathing room saat zoom > fit atau scroll-mockup overflow vertikal.
+            - frameWrapper = kotak fisik berukuran persis scaled visual box (sudah termasuk
+              ring + shadow overhead), jadi tidak ada yang meluber ke luar.
+            - motion.div punya padding = overhead supaya ring pada child berada di dalam
+              bounding box, bukan di luarnya. */}
         <div
           ref={containerRef}
-          className={cn(
-            "relative w-full h-full z-10",
-            scrollMode === "device" || zoomLevel !== "fit"
-              ? "overflow-auto custom-scrollbar"
-              : "overflow-hidden"
-          )}
+          className="relative w-full h-full z-10 overflow-auto custom-scrollbar"
         >
           <div
-            className="min-h-full min-w-full flex items-center justify-center"
-            style={{
-              paddingTop: scrollMode === "device" || zoomLevel !== "fit" ? Math.max(32, safePaddingV) : 24,
-              paddingBottom: scrollMode === "device" || zoomLevel !== "fit" ? Math.max(32, safePaddingV) : 24,
-              paddingLeft: 24,
-              paddingRight: 24,
-              boxSizing: "border-box",
-            }}
+            className={cn(
+              "min-w-full min-h-full flex items-center justify-center",
+              layoutMode === "focus-preview" ? "p-12" : "p-6"
+            )}
           >
-            {/* LAYOUT WRAPPER: Ensures flexbox alignment and scrolling work perfectly with scaled absolute element */}
             <div
-              className="relative shrink-0 flex items-center justify-center"
+              className="relative shrink-0"
               style={{
-                width: currentPreset.width * scale,
-                height: currentPreset.height * scale,
+                width: innerW * scale,
+                height: logicalH * scale,
               }}
             >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={device}
-                initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -10, scale: 0.992, filter: "blur(4px)" }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                style={{
-                  width: currentPreset.width,
-                  height: currentPreset.height,
-                  borderRadius: currentPreset.borderRadius,
-                  transform: `translate(-50%, -50%) scale(${scale})`,
-                  transformOrigin: "center center",
-                }}
-                className={cn(
-                  "absolute left-1/2 top-1/2 flex flex-col shrink-0 overflow-hidden",
-                  // Premium Shell Styling
-                  device === "mobile" && "bg-black ring-[12px] ring-[#141517] shadow-[0_0_0_13px_rgba(255,255,255,0.05),0_30px_60px_rgba(0,0,0,0.6),0_0_120px_rgba(255,255,255,0.02)]",
-                  device === "tablet" && "bg-black ring-[16px] ring-[#1A1A1C] shadow-[0_0_0_17px_rgba(255,255,255,0.05),0_40px_80px_rgba(0,0,0,0.8)]",
-                  device === "desktop" && "bg-black ring-1 ring-white/[0.1] shadow-[0_40px_100px_rgba(0,0,0,0.9),0_0_80px_rgba(255,255,255,0.02)] rounded-t-xl"
-                )}
-              >
-                
-                {/* Premium Device Accents */}
-                {device === "mobile" && (
-                  <>
-                    {/* Dynamic Island / Notch Simulation */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[32px] bg-black rounded-b-[24px] z-50 flex items-center justify-center">
-                      <div className="w-16 h-2 rounded-full bg-[#1A1A1C]" />
-                    </div>
-                    {/* Edge highlights */}
-                    <div className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-50" />
-                  </>
-                )}
-
-                {device === "tablet" && (
-                  <>
-                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white/10 z-50" />
-                    <div className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-50" />
-                  </>
-                )}
-
-                {device === "desktop" && (
-                  <div className="h-12 w-full flex items-center gap-3 border-b border-white/[0.08] bg-gradient-to-b from-[#1A1B1E] to-[#121315] px-6 shrink-0 z-50">
-                    <div className="flex items-center gap-2.5">
-                      <span className="h-3 w-3 rounded-full bg-[#FF5F56] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
-                      <span className="h-3 w-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
-                      <span className="h-3 w-3 rounded-full bg-[#27C93F] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
-                    </div>
-                    <div className="flex h-7 flex-1 items-center justify-center rounded-md bg-black/40 px-4 ring-1 ring-white/[0.05] shadow-inner max-w-md mx-auto">
-                      <span className="text-[10px] font-medium text-white/30">
-                        lynknov.com/live
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* CONTENT VIEWPORT */}
-                <div
-                  ref={scrollContainerRef}
-                  className={cn(
-                    "flex-1 w-full bg-[#030303] relative z-0",
-                    scrollMode === "content" ? "overflow-y-auto custom-scrollbar" : "overflow-hidden"
-                  )}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={device}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  style={{
+                    width: innerW,
+                    height: logicalH,
+                    padding: currentPreset.overhead,
+                    transform: `scale(${scale})`,
+                    transformOrigin: "top left",
+                  }}
+                  className="absolute top-0 left-0 shrink-0"
                 >
-                  <div className={cn(
-                    "w-full min-h-full", 
-                    // If mobile, add padding top for the notch
-                    device === "mobile" ? "pt-12" : ""
-                  )}>
-                    <EditorStructuralPreview
-                      sections={sections}
-                      activeSectionId={activeSectionId}
-                      device={device}
-                    />
+                  {/* SHELL: native device box (ring di sini, persis pas di dalam padding overhead parent) */}
+                  <div
+                    style={{ borderRadius: currentPreset.borderRadius }}
+                    className={cn(
+                      "relative w-full h-full flex flex-col overflow-hidden",
+                      device === "mobile" && "bg-black ring-[12px] ring-[#141517] shadow-[0_0_0_13px_rgba(255,255,255,0.05),0_30px_60px_rgba(0,0,0,0.6),0_0_120px_rgba(255,255,255,0.02)]",
+                      device === "tablet" && "bg-black ring-[16px] ring-[#1A1A1C] shadow-[0_0_0_17px_rgba(255,255,255,0.05),0_40px_80px_rgba(0,0,0,0.8)]",
+                      device === "desktop" && "bg-black ring-1 ring-white/[0.1] shadow-[0_40px_100px_rgba(0,0,0,0.9),0_0_80px_rgba(255,255,255,0.02)] rounded-t-xl"
+                    )}
+                  >
+                    {/* Premium Device Accents */}
+                    {device === "mobile" && (
+                      <>
+                        {/* Dynamic Island / Notch Simulation */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[120px] h-[32px] bg-black rounded-b-[24px] z-50 flex items-center justify-center">
+                          <div className="w-16 h-2 rounded-full bg-[#1A1A1C]" />
+                        </div>
+                        {/* Edge highlights */}
+                        <div className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-50" />
+                      </>
+                    )}
+
+                    {device === "tablet" && (
+                      <>
+                        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white/10 z-50" />
+                        <div className="absolute inset-0 rounded-[inherit] ring-1 ring-inset ring-white/[0.08] pointer-events-none z-50" />
+                      </>
+                    )}
+
+                    {device === "desktop" && (
+                      <div className="h-12 w-full flex items-center gap-3 border-b border-white/[0.08] bg-gradient-to-b from-[#1A1B1E] to-[#121315] px-6 shrink-0 z-50">
+                        <div className="flex items-center gap-2.5">
+                          <span className="h-3 w-3 rounded-full bg-[#FF5F56] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
+                          <span className="h-3 w-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
+                          <span className="h-3 w-3 rounded-full bg-[#27C93F] shadow-[inset_0_0_4px_rgba(0,0,0,0.2)]" />
+                        </div>
+                        <div className="flex h-7 flex-1 items-center justify-center rounded-md bg-black/40 px-4 ring-1 ring-white/[0.05] shadow-inner max-w-md mx-auto">
+                          <span className="text-[10px] font-medium text-white/30">
+                            lynknov.com/live
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* CONTENT VIEWPORT
+                        - scrollMode "content": inner scroll (overflow-y-auto), mockup height tetap innerH.
+                        - scrollMode "device" : viewport tumbuh natural (overflow-visible), mockup memanjang
+                          menelan konten, outer canvas yang scroll. */}
+                    <div
+                      ref={scrollContainerRef}
+                      className={cn(
+                        "flex-1 w-full bg-[#030303] relative z-0",
+                        scrollMode === "content" ? "overflow-y-auto custom-scrollbar" : "overflow-visible"
+                      )}
+                    >
+                      <div
+                        ref={mockupContentRef}
+                        className={cn(
+                          "w-full",
+                          // min-h-full hanya saat content-scroll supaya inner mengisi viewport.
+                          // Di device-scroll, tinggi PURE content-driven untuk memutus
+                          // loop feedback ResizeObserver → logicalH → viewport → min-h-full.
+                          scrollMode === "content" && "min-h-full",
+                          // If mobile, add padding top for the notch
+                          device === "mobile" ? "pt-12" : ""
+                        )}
+                      >
+                        <EditorStructuralPreview
+                          sections={sections}
+                          activeSectionId={activeSectionId}
+                          device={device}
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 
-        {/* ZOOM CONTROLS (Floating Bottom Right) */}
+        {/* ZOOM CONTROLS (Floating Bottom Right)
+            - Tombol tengah clickable untuk reset ke Fit (bukan <select> lagi).
+            - Step diskrit [25, 50, 75, 100, 125, 150] untuk plus/minus. */}
         <div className="absolute bottom-6 right-6 z-50 flex items-center gap-1.5 rounded-2xl border border-white/[0.05] bg-[#0A0A0C]/80 backdrop-blur-xl p-1.5 shadow-2xl animate-in slide-in-from-bottom-4 duration-500">
-          <button 
-            onClick={() => setZoomLevel(prev => prev === "fit" ? 50 : Math.max(25, (prev as number) - 25) as ZoomLevel)}
+          <button
+            onClick={() => {
+              setZoomLevel((prev) => {
+                if (prev === "fit") return ZOOM_STEPS[2]; // 75 — selangkah di bawah "fit" native
+                const idx = ZOOM_STEPS.indexOf(prev as typeof ZOOM_STEPS[number]);
+                return idx > 0 ? ZOOM_STEPS[idx - 1] : ZOOM_STEPS[0];
+              });
+            }}
             className="flex h-8 w-8 items-center justify-center rounded-xl text-white/40 hover:bg-white/[0.05] hover:text-white transition-all active:scale-95"
             title="Zoom Out"
+            aria-label="Zoom out"
           >
             <Minus className="h-4 w-4" />
           </button>
-          
-          <div className="relative group">
-            <select 
-              value={zoomLevel} 
-              onChange={(e) => setZoomLevel(e.target.value === "fit" ? "fit" : Number(e.target.value) as ZoomLevel)}
-              className="h-8 min-w-[64px] rounded-xl bg-white/[0.02] px-2 text-center text-[11px] font-bold text-white/80 outline-none appearance-none cursor-pointer hover:bg-white/[0.06] hover:text-white transition-all"
-            >
-              <option value="fit" className="bg-[#141517]">Fit</option>
-              <option value={25} className="bg-[#141517]">25%</option>
-              <option value={50} className="bg-[#141517]">50%</option>
-              <option value={75} className="bg-[#141517]">75%</option>
-              <option value={100} className="bg-[#141517]">100%</option>
-              <option value={125} className="bg-[#141517]">125%</option>
-            </select>
-          </div>
 
-          <button 
-            onClick={() => setZoomLevel(prev => prev === "fit" ? 100 : Math.min(125, (prev as number) + 25) as ZoomLevel)}
+          <button
+            onClick={() => setZoomLevel("fit")}
+            className={cn(
+              "h-8 min-w-[64px] rounded-xl px-2 text-center text-[11px] font-bold outline-none cursor-pointer transition-all active:scale-95",
+              zoomLevel === "fit"
+                ? "bg-white/[0.08] text-white ring-1 ring-white/[0.12]"
+                : "bg-white/[0.02] text-white/80 hover:bg-white/[0.06] hover:text-white"
+            )}
+            title="Reset ke Fit"
+            aria-label="Reset zoom ke Fit"
+          >
+            {zoomLevel === "fit" ? "Fit" : `${zoomLevel}%`}
+          </button>
+
+          <button
+            onClick={() => {
+              setZoomLevel((prev) => {
+                if (prev === "fit") return ZOOM_STEPS[3]; // 100 — selangkah di atas fit
+                const idx = ZOOM_STEPS.indexOf(prev as typeof ZOOM_STEPS[number]);
+                return idx < ZOOM_STEPS.length - 1 ? ZOOM_STEPS[idx + 1] : ZOOM_STEPS[ZOOM_STEPS.length - 1];
+              });
+            }}
             className="flex h-8 w-8 items-center justify-center rounded-xl text-white/40 hover:bg-white/[0.05] hover:text-white transition-all active:scale-95"
             title="Zoom In"
+            aria-label="Zoom in"
           >
             <Plus className="h-4 w-4" />
           </button>

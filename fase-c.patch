@@ -1,0 +1,217 @@
+diff --git a/src/components/editor/editor-preview.tsx b/src/components/editor/editor-preview.tsx
+index 67a5434..007208a 100644
+--- a/src/components/editor/editor-preview.tsx
++++ b/src/components/editor/editor-preview.tsx
+@@ -245,13 +245,22 @@ export function EditorPreview(props: EditorPreviewProps) {
+   }, [containerSize, innerW, innerH, layoutMode, scrollMode, zoomLevel]);
+ 
+   // Tinggi "logis" motion.div sebelum scale.
+-  // - content mode: tetap innerH (device height fisik, konten scroll di dalam).
+-  // - device mode : max(innerH, mockupContentHeight + overhead*2) agar mockup
+-  //                 memanjang menelan seluruh konten (mockupContentHeight dari
+-  //                 ResizeObserver). Outer canvas scroll akan muncul otomatis
+-  //                 jika tinggi wrapper (= logicalH * scale) > canvas height.
++  // Semantik dua mode dibuat BENAR-BENAR berbeda supaya user punya alasan jelas
++  // untuk pakai salah satunya, dan future-safe saat section bertambah banyak.
++  //
++  // - content mode : mockup FIXED sesuai spec device (innerH). Konten yang scroll
++  //                  di dalam. Canvas tidak perlu scroll. Cocok untuk "rasain"
++  //                  seperti holding real device.
++  // - device mode  : mockup PURE content-driven. Tinggi = tinggi natural seluruh
++  //                  konten halaman + overhead. Short content → mockup ringkas.
++  //                  Long content → mockup menjulang panjang, canvas yang scroll.
++  //                  Cocok untuk lihat keseluruhan halaman end-to-end tanpa scroll
++  //                  di dalam frame. Naturally scales saat section > 1.
++  //
++  // Floor 400 mencegah mockup kolaps jadi kotak kecil saat ResizeObserver belum
++  // fire atau konten benar-benar kosong.
+   const logicalH = scrollMode === "device"
+-    ? Math.max(innerH, mockupContentHeight + currentPreset.overhead * 2)
++    ? Math.max(400, mockupContentHeight + currentPreset.overhead * 2)
+     : innerH;
+ 
+   return (
+diff --git a/src/components/editor/preview/hero-preview.tsx b/src/components/editor/preview/hero-preview.tsx
+index ac734a0..3cf919f 100644
+--- a/src/components/editor/preview/hero-preview.tsx
++++ b/src/components/editor/preview/hero-preview.tsx
+@@ -30,13 +30,15 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+   const showTrust = settings.showTrustText !== false;
+ 
+   // Layout stacking: mobile + tablet + alignment center → stacked column (flex-col).
+-  // Verified badge position derived dari stacking state, bukan dari `isMobile` saja,
+-  // supaya konsisten dengan layout dan tidak fragile saat breakpoint berubah.
++  // Verified badge slot:
++  // - stacked mode : DEDICATED row tersendiri di antara badge row dan name row.
++  //                  Tidak share dengan badge atau name → tidak akan pernah
++  //                  bentrok dengan nama user sepanjang apapun.
++  // - desktop non-stacked : inline sibling di h1 (seperti centang IG).
+   const isCenterAlign = alignment === "center";
+   const isStacked = isMobile || isTablet || isCenterAlign;
+-  const verifiedPosition: "badgeRow" | "nameRow" = isStacked ? "badgeRow" : "nameRow";
+-  const showVerifiedInBadgeRow = showVerified && verifiedPosition === "badgeRow";
+-  const showVerifiedInNameRow = showVerified && verifiedPosition === "nameRow";
++  const showVerifiedStandalone = showVerified && isStacked;
++  const showVerifiedInNameRow = showVerified && !isStacked;
+ 
+   const palette = {
+     emerald: { text: "text-emerald-400", bg: "bg-emerald-500", border: "border-emerald-500/20", glow: "rgba(16,185,129,0.15)", strongGlow: "rgba(16,185,129,0.4)", gradient: "from-emerald-500/20" },
+@@ -71,20 +73,21 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+ 
+   // Tablet sekarang ikut stacked (kolom) sama seperti mobile — lebar 820px terlalu
+   // sempit untuk 2-kolom dengan headline besar; hasil 2-kolom rapuh dan gampang pecah.
++  // Non-stacked (desktop only) pakai flex-row dengan constraint yang SUM-AMAN:
++  // identity flex-shrink-0 max 380, text flex-1 min-w-0 max 560, gap-10, container
++  // px-16 → total 380+40+560=980 ≤ 1024 (1152−128). Tidak akan overflow.
+   const containerLayout = isStacked
+     ? "flex-col items-center justify-center text-center"
+     : isRight
+       ? "flex-row items-center justify-between"
+       : "flex-row-reverse items-center justify-between";
+ 
+-  // Saat stacked, kedua cluster pakai full width (dibatasi container max-w),
+-  // tidak lagi split 44/54 yang menyebabkan kata pecah di tablet.
+   const identityColWidth = isStacked
+     ? "w-full"
+-    : "w-[42%] max-w-[460px] px-8 lg:px-16";
++    : "flex-shrink-0 w-auto max-w-[380px]";
+   const textColWidth = isStacked
+     ? "w-full max-w-2xl"
+-    : "w-[56%] max-w-[620px] pr-8 lg:pr-12";
++    : "flex-1 min-w-0 max-w-[560px]";
+ 
+   const identityAlign = isStacked ? "items-center text-center" : isRight ? "items-start text-left" : "items-end text-right";
+   const textAlign = isStacked ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left";
+@@ -179,8 +182,8 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+         // Padding & gap disesuaikan dengan stacking.
+         // Tablet: stacked → gap vertikal lebih ketat dari mobile, max-w 720 agar
+         // headline dan deskripsi tidak pecah kata demi kata.
+-        isMobile ? "p-6 gap-7 max-w-[360px]" :
+-        isTablet ? "p-10 gap-9 max-w-[720px]" : "p-14 gap-14 max-w-6xl",
++        isMobile ? "p-6 gap-6 max-w-[360px]" :
++        isTablet ? "p-10 gap-9 max-w-[720px]" : "px-16 py-14 gap-10 max-w-6xl",
+         containerLayout
+       )}>
+ 
+@@ -213,15 +216,16 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+             </div>
+           )}
+ 
+-          {/* IDENTITY TEXT CLUSTER */}
+-          <div className={cn("flex flex-col gap-1.5 w-full", identityAlign)}>
++          {/* IDENTITY TEXT CLUSTER
++              Hirarki final: [Badge (opsional)] → [Verified standalone (stacked)] → [Nama] → [Role]
++              Gap antar elemen lebih lega (gap-2) supaya di mobile tidak terlihat padat. */}
++          <div className={cn("flex flex-col gap-2 w-full", identityAlign)}>
+ 
+             {showBadge && content.badgeText && (
+               <div
+                 className={cn(
+-                  "w-full flex items-center gap-2",
+-                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end",
+-                  isMobile ? "mb-1.5" : isTablet ? "mb-2" : "mb-2.5"
++                  "w-full flex items-center",
++                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
+                 )}
+               >
+                 <span
+@@ -233,45 +237,68 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+                 >
+                   {content.badgeText}
+                 </span>
++              </div>
++            )}
+ 
+-                {showVerifiedInBadgeRow && (
+-                  <span className="inline-flex shrink-0 items-center justify-center leading-none">
+-                    <VerifiedIcon
+-                      className="w-[15px] h-[15px] drop-shadow-[0_0_10px_rgba(56,151,240,0.45)]"
+-                    />
+-                  </span>
++            {/* DEDICATED VERIFIED ROW (stacked mode only).
++                Independen dari badge — tetap tampil walau user tidak pasang badgeText.
++                Fully terpisah dari name row, jadi TIDAK MUNGKIN bentrok dengan nama. */}
++            {showVerifiedStandalone && (
++              <div
++                className={cn(
++                  "w-full flex items-center",
++                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
+                 )}
++              >
++                <VerifiedIcon
++                  className={cn(
++                    "drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
++                    isMobile ? "w-[18px] h-[18px]" : "w-[22px] h-[22px]"
++                  )}
++                />
+               </div>
+             )}
+ 
+             {/* NAME ROW
+-                Struktur minimal & aman: h1 jadi flex container, name span pakai
+-                `truncate` (bukan `whitespace-nowrap`) supaya overflow jadi ellipsis,
+-                verified icon sibling dengan `shrink-0` di luar flow truncate →
+-                ikon tidak pernah bisa ketindih/tumpang huruf nama.
+-                Wrapper max-w lama dihapus karena bentrok dengan lebar identity column. */}
+-            <h1
+-              className={cn(
+-                "font-black flex items-center gap-2 tracking-tighter leading-none w-full max-w-full min-w-0",
+-                isStacked ? "justify-center text-center" : isRight ? "justify-start text-left" : "justify-end text-right",
+-                isMobile ? "text-[1.15rem]" : isTablet ? "text-[1.5rem]" : "text-[2rem]",
+-                isLightMode ? "text-black" : "text-white"
+-              )}
+-              title={content.name || "Nama Anda"}
+-            >
+-              <span className="truncate min-w-0">
++                Dua cabang perilaku:
++                - stacked: tidak ada verified di sini, nama boleh wrap natural
++                  (line-clamp-2, break-words). Nama panjang akan pecah jadi 2 baris
++                  dengan indah, BUKAN terpotong ellipsis apalagi bentrok ikon.
++                - desktop non-stacked: h1 jadi flex container, span nama truncate,
++                  VerifiedIcon sibling shrink-0 (style centang IG klasik). */}
++            {isStacked ? (
++              <h1
++                className={cn(
++                  "font-black tracking-tight leading-[1.15] w-full break-words line-clamp-2",
++                  "text-center",
++                  isMobile ? "text-[1.1rem]" : isTablet ? "text-[1.45rem]" : "text-[2rem]",
++                  isLightMode ? "text-black" : "text-white"
++                )}
++                title={content.name || "Nama Anda"}
++              >
+                 {content.name || "Nama Anda"}
+-              </span>
++              </h1>
++            ) : (
++              <h1
++                className={cn(
++                  "font-black flex items-center gap-2 tracking-tighter leading-none w-full max-w-full min-w-0",
++                  isRight ? "justify-start text-left" : "justify-end text-right",
++                  "text-[2rem]",
++                  isLightMode ? "text-black" : "text-white"
++                )}
++                title={content.name || "Nama Anda"}
++              >
++                <span className="truncate min-w-0">
++                  {content.name || "Nama Anda"}
++                </span>
+ 
+-              {showVerifiedInNameRow && (
+-                <VerifiedIcon
+-                  className={cn(
+-                    "shrink-0 drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
+-                    isTablet ? "w-[20px] h-[20px]" : "w-[24px] h-[24px]"
+-                  )}
+-                />
+-              )}
+-            </h1>
++                {showVerifiedInNameRow && (
++                  <VerifiedIcon
++                    className="shrink-0 w-[24px] h-[24px] drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]"
++                  />
++                )}
++              </h1>
++            )}
+ 
+             {/* ROLE ROW (Premium Silver Gradient)
+                 line-clamp-1 di semua device — tidak pernah terpotong aneh di

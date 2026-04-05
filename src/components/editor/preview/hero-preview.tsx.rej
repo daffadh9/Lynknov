@@ -1,0 +1,169 @@
+diff a/src/components/editor/preview/hero-preview.tsx b/src/components/editor/preview/hero-preview.tsx	(rejected hunks)
+@@ -61,30 +67,27 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+   };
+ 
+   // LAYOUT
+-  const isCenter = alignment === "center";
+   const isRight = alignment === "right";
+ 
+-  const containerLayout = isMobile
+-    ? "flex-col items-center text-center"
+-    : isCenter
+-      ? "flex-col items-center justify-center text-center"
+-      : isRight
+-        ? "flex-row items-center justify-between"
+-        : "flex-row-reverse items-center justify-between";
+-
+-  // Width & spacing (Intentional filling)
+-  // Menambah ruang kontainer dan menarik ke dalam dari tepi luar
+-  const identityColWidth = isMobile
++  // Tablet sekarang ikut stacked (kolom) sama seperti mobile — lebar 820px terlalu
++  // sempit untuk 2-kolom dengan headline besar; hasil 2-kolom rapuh dan gampang pecah.
++  const containerLayout = isStacked
++    ? "flex-col items-center justify-center text-center"
++    : isRight
++      ? "flex-row items-center justify-between"
++      : "flex-row-reverse items-center justify-between";
++
++  // Saat stacked, kedua cluster pakai full width (dibatasi container max-w),
++  // tidak lagi split 44/54 yang menyebabkan kata pecah di tablet.
++  const identityColWidth = isStacked
+     ? "w-full"
+-    : isCenter
+-      ? "w-full"
+-      : isTablet
+-        ? "w-[44%] max-w-[380px] px-6"
+-        : "w-[42%] max-w-[460px] px-8 lg:px-16";
+-  const textColWidth = isMobile ? "w-full" : isCenter ? "w-full max-w-3xl" : isTablet ? "w-[54%] max-w-[460px] pr-4" : "w-[56%] max-w-[620px] pr-8 lg:pr-12";
++    : "w-[42%] max-w-[460px] px-8 lg:px-16";
++  const textColWidth = isStacked
++    ? "w-full max-w-2xl"
++    : "w-[56%] max-w-[620px] pr-8 lg:pr-12";
+ 
+-  const identityAlign = isMobile || isCenter ? "items-center text-center" : isRight ? "items-start text-left" : "items-end text-right";
+-  const textAlign = isMobile || isCenter ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left";
++  const identityAlign = isStacked ? "items-center text-center" : isRight ? "items-start text-left" : "items-end text-right";
++  const textAlign = isStacked ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left";
+ 
+   const isLightMode = style.backgroundVariant === "editorial-light";
+ 
+@@ -173,8 +176,11 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+       {/* ── MAIN COMPOSITION ── */}
+       <div className={cn(
+         "relative z-10 flex w-full transition-all duration-700 mx-auto",
+-        isMobile ? "p-6 gap-8 max-w-[400px]" :
+-        isTablet ? "p-10 gap-10 max-w-4xl" : "p-16 gap-16 max-w-7xl",
++        // Padding & gap disesuaikan dengan stacking.
++        // Tablet: stacked → gap vertikal lebih ketat dari mobile, max-w 720 agar
++        // headline dan deskripsi tidak pecah kata demi kata.
++        isMobile ? "p-6 gap-7 max-w-[360px]" :
++        isTablet ? "p-10 gap-9 max-w-[720px]" : "p-14 gap-14 max-w-6xl",
+         containerLayout
+       )}>
+ 
+@@ -182,14 +188,16 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+         <div className={cn("flex flex-col shrink-0 transition-all duration-700", identityColWidth, identityAlign)}>
+ 
+           {showAvatar && (
+-            <div className={cn("relative", isMobile ? "mb-5" : isTablet ? "mb-6" : "mb-8")}>
++            <div className={cn("relative", isMobile ? "mb-4" : isTablet ? "mb-5" : "mb-7")}>
+               {/* Wrapping Frame */}
+               <div className={cn(
+                 "relative transition-all duration-700",
+                 getAvatarShape(),
+                 getAvatarFrame(),
+-                // Avatar Scale locked per breakpoint (moderately increased)
+-                isMobile ? "w-[100px]" : isTablet ? "w-[172px]" : "w-[236px]"
++                // Avatar per breakpoint. Mobile naik sedikit (112) agar seimbang
++                // dengan headline jumbo; tablet turun (160) karena stacked sekarang
++                // jadi tidak butuh area sebesar 2-kolom mode.
++                isMobile ? "w-[112px]" : isTablet ? "w-[160px]" : "w-[220px]"
+               )}>
+                 {/* Inner Image */}
+                 <div className={cn("absolute inset-0 overflow-hidden", getAvatarShape())}>
+@@ -236,47 +244,45 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+               </div>
+             )}
+ 
+-            {/* NAME ROW */}
+-            <div
++            {/* NAME ROW
++                Struktur minimal & aman: h1 jadi flex container, name span pakai
++                `truncate` (bukan `whitespace-nowrap`) supaya overflow jadi ellipsis,
++                verified icon sibling dengan `shrink-0` di luar flow truncate →
++                ikon tidak pernah bisa ketindih/tumpang huruf nama.
++                Wrapper max-w lama dihapus karena bentrok dengan lebar identity column. */}
++            <h1
+               className={cn(
+-                "w-full flex justify-center",
+-                isMobile ? "max-w-[300px]" : isTablet ? "max-w-[420px]" : "max-w-[560px]"
++                "font-black flex items-center gap-2 tracking-tighter leading-none w-full max-w-full min-w-0",
++                isStacked ? "justify-center text-center" : isRight ? "justify-start text-left" : "justify-end text-right",
++                isMobile ? "text-[1.15rem]" : isTablet ? "text-[1.5rem]" : "text-[2rem]",
++                isLightMode ? "text-black" : "text-white"
+               )}
++              title={content.name || "Nama Anda"}
+             >
+-              <h1
+-                className={cn(
+-                  "min-w-0 max-w-full font-black flex items-center justify-center whitespace-nowrap tracking-tighter leading-none text-center",
+-                  isMobile ? "text-[1.15rem]" : isTablet ? "text-[1.5rem]" : "text-[2rem]",
+-                  isLightMode ? "text-black" : "text-white"
+-                )}
+-                title={content.name || "Nama Anda"}
+-              >
+-                <span className="min-w-0 whitespace-nowrap">
+-                  {content.name || "Nama Anda"}
+-                </span>
++              <span className="truncate min-w-0">
++                {content.name || "Nama Anda"}
++              </span>
+ 
+-                {showVerifiedInNameRow && (
+-                  <span className="inline-flex shrink-0 ml-2 items-center justify-center leading-none">
+-                    <VerifiedIcon
+-                      className={cn(
+-                        "drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
+-                        isTablet ? "w-[20px] h-[20px]" : "w-[24px] h-[24px]"
+-                      )}
+-                    />
+-                  </span>
+-                )}
+-              </h1>
+-            </div>
++              {showVerifiedInNameRow && (
++                <VerifiedIcon
++                  className={cn(
++                    "shrink-0 drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
++                    isTablet ? "w-[20px] h-[20px]" : "w-[24px] h-[24px]"
++                  )}
++                />
++              )}
++            </h1>
+ 
+-            {/* ROLE ROW (Premium Silver Gradient) */}
++            {/* ROLE ROW (Premium Silver Gradient)
++                line-clamp-1 di semua device — tidak pernah terpotong aneh di
++                tengah kata seperti `truncate whitespace-nowrap` di desktop. */}
+             {content.role && (
+               <span className={cn(
+-                "w-full uppercase tracking-[0.2em] font-bold drop-shadow-sm",
++                "w-full uppercase tracking-[0.2em] font-bold drop-shadow-sm line-clamp-1",
+                 // Premium silver metallic styling
+                 isLightMode
+                   ? "bg-clip-text text-transparent bg-gradient-to-r from-zinc-500 via-zinc-400 to-zinc-600"
+                   : "bg-clip-text text-transparent bg-gradient-to-r from-zinc-300 via-zinc-100 to-zinc-400",
+-                !isMobile ? "truncate whitespace-nowrap" : "line-clamp-1",
+                 isMobile ? "text-[9.5px] mt-1" : isTablet ? "text-[11px] mt-1.5" : "text-[14px] mt-2"
+               )}>
+                 {content.role}
+@@ -310,7 +318,8 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
+           <div className={cn(
+             "flex flex-wrap items-center w-full",
+             isMobile ? "gap-2" : "gap-3",
+-            isCenter ? "justify-center" : isRight ? "justify-end" : "justify-start"
++            // Stacked → center; non-stacked ikut alignment.
++            isStacked ? "justify-center" : isRight ? "justify-end" : "justify-start"
+           )}>
+             <button className={cn(
+               "rounded-xl font-black uppercase tracking-widest transition-all active:scale-95",
