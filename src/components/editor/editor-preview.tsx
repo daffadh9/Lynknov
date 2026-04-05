@@ -10,6 +10,7 @@ import { EditorStructuralPreview } from "./editor-structural-preview";
 type DeviceType = "mobile" | "tablet" | "desktop";
 type LayoutMode = "focus-edit" | "balanced" | "focus-preview";
 type ScrollMode = "content" | "device";
+type ZoomLevel = 25 | 50 | 75 | 100 | 125 | "fit";
 
 interface EditorPreviewProps {
   sections: EditorSection[];
@@ -212,21 +213,21 @@ export function EditorPreview(props: EditorPreviewProps) {
     const scaleX = availableWidth / currentPreset.width;
     const scaleY = availableHeight / currentPreset.height;
 
-    let finalScale = 1;
+    const baseFitScale = Math.min(scaleX, scaleY);
 
-    // Dual Scroll Integration
-    if (scrollMode === "device") {
-      // In Device Scroll, we primarily base the scale on width so it's readable.
-      // But we cap it so it doesn't get absurdly huge in focus preview.
-      const maxScaleCap = device === "desktop" ? 1.0 : (isFocus ? 1.15 : 1.0);
-      finalScale = Math.min(scaleX, maxScaleCap);
-    } else {
-      // In Content Scroll, the entire device MUST fit within the viewport height and width.
-      finalScale = Math.min(scaleX, scaleY);
-    }
+    const fitScale =
+      scrollMode === "device"
+        ? Math.min(baseFitScale, device === "desktop" ? 0.92 : 1)
+        : baseFitScale;
+
+    let finalScale = fitScale;
 
     if (zoomLevel !== "fit") {
-      finalScale = zoomLevel / 100;
+      finalScale = fitScale * (zoomLevel / 100);
+    }
+
+    if (device === "desktop" && layoutMode === "focus-preview") {
+      finalScale = Math.min(finalScale, 0.92);
     }
 
     return { scale: finalScale, safePaddingV: padV };
@@ -264,42 +265,49 @@ export function EditorPreview(props: EditorPreviewProps) {
 
         {/* PREVIEW STAGE */}
         {/* If scrollMode is "device" OR we are zoomed in, the stage itself allows scrolling */}
-        <div 
-          ref={containerRef} 
+        <div
+          ref={containerRef}
           className={cn(
-            "relative w-full h-full flex justify-center z-10",
-            (scrollMode === "device" || zoomLevel !== "fit") ? "overflow-auto custom-scrollbar items-start justify-start sm:justify-center" : "overflow-hidden items-center"
+            "relative w-full h-full z-10",
+            scrollMode === "device" || zoomLevel !== "fit"
+              ? "overflow-auto custom-scrollbar"
+              : "overflow-hidden"
           )}
         >
-          {/* LAYOUT WRAPPER: Ensures flexbox alignment and scrolling work perfectly with scaled absolute element */}
-          <div 
-            className="relative shrink-0 flex items-start justify-center"
+          <div
+            className="min-h-full min-w-full flex items-center justify-center"
             style={{
-              width: currentPreset.width * scale,
-              height: currentPreset.height * scale,
-              // Explicit vertical margins in device mode ensure safe breathing room when scrolling
-              marginTop: (scrollMode === "device" || zoomLevel !== "fit") ? Math.max(48, safePaddingV) : 0,
-              marginBottom: (scrollMode === "device" || zoomLevel !== "fit") ? Math.max(48, safePaddingV) : 0,
-              marginLeft: "auto",
-              marginRight: "auto"
+              paddingTop: scrollMode === "device" || zoomLevel !== "fit" ? Math.max(32, safePaddingV) : 24,
+              paddingBottom: scrollMode === "device" || zoomLevel !== "fit" ? Math.max(32, safePaddingV) : 24,
+              paddingLeft: 24,
+              paddingRight: 24,
+              boxSizing: "border-box",
             }}
           >
+            {/* LAYOUT WRAPPER: Ensures flexbox alignment and scrolling work perfectly with scaled absolute element */}
+            <div
+              className="relative shrink-0 flex items-center justify-center"
+              style={{
+                width: currentPreset.width * scale,
+                height: currentPreset.height * scale,
+              }}
+            >
             <AnimatePresence mode="wait">
               <motion.div
                 key={device}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, y: 18, scale: 0.985, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -10, scale: 0.992, filter: "blur(4px)" }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                 style={{
                   width: currentPreset.width,
                   height: currentPreset.height,
                   borderRadius: currentPreset.borderRadius,
-                  transform: `scale(${scale})`,
-                  transformOrigin: "top left",
+                  transform: `translate(-50%, -50%) scale(${scale})`,
+                  transformOrigin: "center center",
                 }}
                 className={cn(
-                  "absolute top-0 left-0 flex flex-col shrink-0 overflow-hidden",
+                  "absolute left-1/2 top-1/2 flex flex-col shrink-0 overflow-hidden",
                   // Premium Shell Styling
                   device === "mobile" && "bg-black ring-[12px] ring-[#141517] shadow-[0_0_0_13px_rgba(255,255,255,0.05),0_30px_60px_rgba(0,0,0,0.6),0_0_120px_rgba(255,255,255,0.02)]",
                   device === "tablet" && "bg-black ring-[16px] ring-[#1A1A1C] shadow-[0_0_0_17px_rgba(255,255,255,0.05),0_40px_80px_rgba(0,0,0,0.8)]",
@@ -354,14 +362,16 @@ export function EditorPreview(props: EditorPreviewProps) {
                     // If mobile, add padding top for the notch
                     device === "mobile" ? "pt-12" : ""
                   )}>
-                    <EditorStructuralPreview 
+                    <EditorStructuralPreview
                       sections={sections}
                       activeSectionId={activeSectionId}
+                      device={device}
                     />
                   </div>
                 </div>
               </motion.div>
             </AnimatePresence>
+          </div>
           </div>
         </div>
 

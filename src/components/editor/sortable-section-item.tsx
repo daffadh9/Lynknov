@@ -54,13 +54,12 @@ export function SortableSectionItem({
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className={cn(
-            "shrink-0 h-1.5 w-1.5 rounded-full transition-all duration-500",
-            isActive 
-              ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)] scale-110" 
+            "shrink-0 h-2.5 w-2.5 rounded-full transition-all duration-500",
+            isActive
+              ? "bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.8)] scale-125"
               : "bg-white/10 group-hover:bg-white/30"
-          )} />
-          <span className={cn(
-            "truncate text-[13px] font-bold tracking-tight transition-colors",
+          )} />          <span className={cn(
+            "truncate text-[14px] font-bold tracking-tight transition-colors",
             isActive ? "text-white" : "text-white/30 group-hover:text-white/60"
           )}>
             {section.label}

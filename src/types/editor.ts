@@ -33,17 +33,33 @@ export interface HeroSection extends BaseSection {
     avatarUrl?: string;
     badgeText?: string;
     trustText?: string;
+    isVerified?: boolean;
   };
   style: {
     alignment: "left" | "center" | "right";
-    backgroundVariant: "solid" | "gradient" | "premium-grid" | "mesh";
-    avatarShape: "circle" | "rounded-xl" | "rounded-2xl";
+    backgroundVariant: 
+      | "solid" | "gradient" | "dual-tone" | "aurora"
+      | "premium-grid" | "fine-lines" | "tech-frame" | "blueprint"
+      | "mesh" | "radial" | "glass" | "noise"
+      | "vignette" | "studio" | "abstract" | "depth"
+      | "editorial-light" | "warm-luxury" | "soft-metallic" | "navy-premium";
+    avatarShape: "circle" | "oval" | "rounded-xl" | "rounded-2xl";
+    avatarFrame: "none" | "ring" | "glow" | "editorial" | "badge" | "glass" | "signature";
+    accentColor: "emerald" | "cyan" | "blue" | "violet" | "gold" | "rose" | "white";
+    primaryCtaStyle: "solid" | "outline" | "soft" | "glass" | "gradient" | "ghost";
+    secondaryCtaStyle: "solid" | "outline" | "soft" | "glass" | "gradient" | "ghost";
+    primaryCtaColor: "emerald" | "cyan" | "blue" | "violet" | "gold" | "rose" | "white";
+    secondaryCtaColor: "emerald" | "cyan" | "blue" | "violet" | "gold" | "rose" | "white";
     cardVariant: "flat" | "glass" | "glass-dark";
   };
   settings: {
     showBadge: boolean;
     showAvatar: boolean;
     showSecondaryCta: boolean;
+    showVerifiedBadge: boolean;
+    showTrustText: boolean;
+    showAccentGlow: boolean;
+    openInNewTab: boolean;
     animation: "none" | "fade-up" | "fade-in";
   };
 }

@@ -7,6 +7,7 @@ import type { EditorSection } from "@/types/editor";
 interface EditorStructuralPreviewProps {
   sections: EditorSection[];
   activeSectionId: string | null;
+  device?: "mobile" | "tablet" | "desktop";
 }
 
 function SkeletonLine({ className, delay = 0 }: { className?: string; delay?: number }) {
@@ -72,6 +73,8 @@ function SectionWrapper({
     </div>
   );
 }
+
+import { HeroPreview } from "./preview/hero-preview";
 
 // ── SKELETON VARIANTS ─────────────────────────────────────────────────────────
 
@@ -194,7 +197,7 @@ function TestimonialsSkeleton() {
 
 // ── MAIN STRUCTURAL RENDERER ──────────────────────────────────────────────────
 
-export function EditorStructuralPreview({ sections, activeSectionId }: EditorStructuralPreviewProps) {
+export function EditorStructuralPreview({ sections, activeSectionId, device }: EditorStructuralPreviewProps) {
   const sortedSections = [...sections].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
@@ -205,7 +208,7 @@ export function EditorStructuralPreview({ sections, activeSectionId }: EditorStr
 
         const renderSkeleton = () => {
           switch (section.type) {
-            case "hero": return <HeroSkeleton />;
+            case "hero": return <HeroPreview section={section as any} device={device} />;
             case "about": return <AboutSkeleton />;
             case "digital_presence": return <DigitalPresenceSkeleton />;
             case "showcase": return <ShowcaseSkeleton />;

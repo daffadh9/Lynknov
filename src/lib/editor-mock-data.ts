@@ -17,6 +17,7 @@ export const initialSections: EditorSection[] = [
       avatarUrl: "/images/Foto Profile.jpg",
       badgeText: "Open to Work",
       trustText: "Dipercaya 20+ klien",
+      isVerified: true,
     },
     style: {
       alignment: "left",
