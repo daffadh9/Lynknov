@@ -60,8 +60,8 @@ export function AssetCenterPanel({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ASSET_CONSTANTS.ALLOWED_IMAGE_TYPES,
-      'audio/*': ASSET_CONSTANTS.ALLOWED_AUDIO_TYPES,
+      'image/*': [],
+      'audio/*': [],
     },
     maxSize: Math.max(ASSET_CONSTANTS.MAX_FILE_SIZE_IMAGE, ASSET_CONSTANTS.MAX_FILE_SIZE_AUDIO),
     multiple: false,
