@@ -27,6 +27,8 @@ interface AssetCenterPanelProps {
   onFilterChange: (filter: AssetFilter) => void;
   onUploadSuccess: (asset: UserAsset) => void;
   onDeleteAsset: (assetId: string) => void;
+  onRenameAsset?: (assetId: string, newName: string) => Promise<void>;
+  onCreateFolder?: (name: string) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -51,6 +53,8 @@ export function AssetCenterPanel({
   onFilterChange,
   onUploadSuccess,
   onDeleteAsset,
+  onRenameAsset,
+  onCreateFolder,
   isLoading = false,
 }: AssetCenterPanelProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -64,6 +68,9 @@ export function AssetCenterPanel({
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [recentlyUploadedIds] = useState<Set<string>>(() => new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCreateFolderDialog, setShowCreateFolderDialog] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const sortMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,6 +136,21 @@ export function AssetCenterPanel({
       if (sortKey === "largest") return (b.file_size || 0) - (a.file_size || 0);
       return 0;
     });
+
+  const handleRenameSelected = async (newName: string) => {
+    if (!selectedAsset || !onRenameAsset) return;
+    await onRenameAsset(selectedAsset.id, newName);
+    setSelectedAsset((prev) => (prev ? { ...prev, name: newName } : null));
+  };
+
+  const handleCreateFolderSubmit = async () => {
+    if (!newFolderName.trim() || !onCreateFolder) return;
+    setIsCreatingFolder(true);
+    await onCreateFolder(newFolderName.trim());
+    setIsCreatingFolder(false);
+    setNewFolderName("");
+    setShowCreateFolderDialog(false);
+  };
 
   const handleDeleteSelected = async () => {
     if (!selectedAsset) return;
@@ -280,7 +302,10 @@ export function AssetCenterPanel({
             </div>
 
             {/* Folder Baru */}
-            <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/[0.06] bg-[#161619] px-3 text-[12px] font-medium text-[#A1A1AA] transition-all hover:border-white/[0.12] hover:bg-[#1C1C20] hover:text-[#F4F4F5]">
+            <button
+              onClick={() => { setNewFolderName(""); setShowCreateFolderDialog(true); }}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/[0.06] bg-[#161619] px-3 text-[12px] font-medium text-[#A1A1AA] transition-all hover:border-white/[0.12] hover:bg-[#1C1C20] hover:text-[#F4F4F5]"
+            >
               <Folder className="h-3.5 w-3.5" />
               Folder Baru
             </button>
@@ -454,6 +479,7 @@ export function AssetCenterPanel({
       <aside className="relative z-10 flex w-[320px] shrink-0 flex-col overflow-hidden border-l border-white/[0.06] bg-[#111114]">
         {selectedAsset ? (
           <AssetInspector
+            key={selectedAsset.id}
             asset={selectedAsset}
             isDeleting={isDeleting}
             showDeleteConfirm={showDeleteConfirm}
@@ -461,11 +487,23 @@ export function AssetCenterPanel({
             onConfirmDelete={handleDeleteSelected}
             onCancelDelete={() => setShowDeleteConfirm(false)}
             onClose={() => { setSelectedAsset(null); setShowDeleteConfirm(false); }}
+            onRename={onRenameAsset ? handleRenameSelected : undefined}
           />
         ) : (
           <PanelEmptyHint />
         )}
       </aside>
+
+      {/* Create Folder Dialog */}
+      {showCreateFolderDialog && (
+        <CreateFolderDialog
+          name={newFolderName}
+          isCreating={isCreatingFolder}
+          onChange={setNewFolderName}
+          onSubmit={handleCreateFolderSubmit}
+          onClose={() => setShowCreateFolderDialog(false)}
+        />
+      )}
     </div>
   );
 }
@@ -648,6 +686,7 @@ function AssetInspector({
   onConfirmDelete,
   onCancelDelete,
   onClose,
+  onRename,
 }: {
   asset: UserAsset;
   isDeleting: boolean;
@@ -656,6 +695,7 @@ function AssetInspector({
   onConfirmDelete: () => void;
   onCancelDelete: () => void;
   onClose: () => void;
+  onRename?: (newName: string) => Promise<void>;
 }) {
   const isImage = asset.asset_kind === "image";
   const isAudio = asset.asset_kind === "audio";
@@ -663,6 +703,23 @@ function AssetInspector({
   const mockUsages = mockInUse
     ? [{ location: "Hero Background", type: "Public Page" }, { location: "Project Cover", type: "Portfolio" }]
     : [];
+
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(asset.name);
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  const commitRename = async () => {
+    const trimmed = editedName.trim();
+    if (!trimmed || trimmed === asset.name || !onRename) {
+      setEditedName(asset.name);
+      setIsEditingName(false);
+      return;
+    }
+    setIsSavingName(true);
+    await onRename(trimmed);
+    setIsSavingName(false);
+    setIsEditingName(false);
+  };
 
   return (
     <>
@@ -709,7 +766,41 @@ function AssetInspector({
           {/* Identity */}
           <div>
             <p className="text-[9px] font-medium uppercase tracking-[0.08em] text-[#71717A]">Identitas</p>
-            <h4 className="mt-2 break-all text-[14px] font-medium leading-snug text-[#F4F4F5]">{asset.name}</h4>
+            <div className="group mt-2 flex items-start gap-2">
+              {isEditingName ? (
+                <input
+                  autoFocus
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") { e.preventDefault(); commitRename(); }
+                    if (e.key === "Escape") { setEditedName(asset.name); setIsEditingName(false); }
+                  }}
+                  onBlur={commitRename}
+                  disabled={isSavingName}
+                  className="flex-1 rounded-md border border-emerald-500/30 bg-[#1C1C20] px-2 py-1 text-[14px] font-medium text-[#F4F4F5] focus:outline-none focus:ring-1 focus:ring-emerald-500/40 disabled:opacity-50"
+                />
+              ) : (
+                <h4
+                  className={cn(
+                    "flex-1 break-all text-[14px] font-medium leading-snug text-[#F4F4F5]",
+                    onRename && "cursor-text hover:text-white"
+                  )}
+                  onClick={() => onRename && setIsEditingName(true)}
+                  title={onRename ? "Klik untuk ganti nama" : undefined}
+                >
+                  {asset.name}
+                </h4>
+              )}
+              {!isEditingName && onRename && (
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  className="mt-0.5 shrink-0 rounded p-0.5 text-[#3F3F46] opacity-0 transition-all group-hover:opacity-100 hover:bg-[#1C1C20] hover:text-[#A1A1AA]"
+                >
+                  <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={2}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                </button>
+              )}
+            </div>
             <div className="mt-1.5 flex flex-wrap items-center gap-2">
               <span className={cn("rounded-full px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider", isImage ? "bg-[rgba(59,130,246,0.12)] text-[#60A5FA]" : isAudio ? "bg-[rgba(139,92,246,0.12)] text-[#A78BFA]" : "bg-[#27272A] text-[#A1A1AA]")}>
                 {asset.asset_kind}
@@ -914,6 +1005,82 @@ function EmptyState({ assets, hasActiveFilters, onTriggerUpload, onClearFilters 
           <ArrowRight className="h-4 w-4" />
           Hubungkan Sumber
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   CREATE FOLDER DIALOG
+══════════════════════════════════════ */
+function CreateFolderDialog({
+  name,
+  isCreating,
+  onChange,
+  onSubmit,
+  onClose,
+}: {
+  name: string;
+  isCreating: boolean;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-white/[0.08] bg-[#161619] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#1C1C20]">
+              <Folder className="h-3.5 w-3.5 text-[#71717A]" />
+            </div>
+            <p className="text-[13px] font-medium text-[#F4F4F5]">Folder Baru</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#71717A] transition-all hover:bg-[#1C1C20] hover:text-[#F4F4F5]"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="px-5 py-5">
+          <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.08em] text-[#71717A]">
+            Nama Folder
+          </label>
+          <input
+            autoFocus
+            type="text"
+            placeholder="mis. Gambar Hero, Audio Produk…"
+            value={name}
+            onChange={(e) => onChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && name.trim()) onSubmit();
+              if (e.key === "Escape") onClose();
+            }}
+            disabled={isCreating}
+            className="h-9 w-full rounded-lg border border-white/[0.06] bg-[#1C1C20] px-3 text-[13px] text-[#F4F4F5] placeholder:text-[#3F3F46] focus:border-emerald-500/40 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 disabled:opacity-50 transition-all"
+          />
+        </div>
+        <div className="flex gap-2 border-t border-white/[0.06] px-5 py-4">
+          <button
+            onClick={onClose}
+            disabled={isCreating}
+            className="flex-1 rounded-lg border border-white/[0.08] py-2 text-[12px] font-medium text-[#A1A1AA] transition-all hover:border-white/[0.15] hover:text-[#F4F4F5] disabled:opacity-50"
+          >
+            Batal
+          </button>
+          <button
+            onClick={onSubmit}
+            disabled={!name.trim() || isCreating}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-500 py-2 text-[12px] font-medium text-black transition-all hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isCreating ? (
+              <><span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black/20 border-t-black" />Membuat...</>
+            ) : (
+              <><Folder className="h-3.5 w-3.5" />Buat Folder</>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

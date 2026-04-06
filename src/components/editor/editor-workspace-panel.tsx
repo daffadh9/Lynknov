@@ -15,7 +15,7 @@ import type {
 } from "@/types/editor";
 import { SectionEditorPanel } from "./section-editor-panel";
 import { AssetCenterPanel } from "./assets/AssetCenterPanel";
-import { fetchAssets, fetchFolders, deleteAsset } from "@/features/assets/actions";
+import { fetchAssets, fetchFolders, deleteAsset, renameAsset, createFolder } from "@/features/assets/actions";
 import type { AssetFilter, AssetFolder, UserAsset } from "@/types/assets";
 
 interface EditorWorkspacePanelProps {
@@ -312,8 +312,21 @@ function UploadsWorkspaceWrapper() {
     if (res.success) {
       setAssets((prev) => prev.filter((a) => a.id !== assetId));
     } else {
-      // TODO: Handle delete warning in future step
       console.error(res.error);
+    }
+  };
+
+  const handleRenameAsset = async (assetId: string, newName: string) => {
+    const res = await renameAsset(assetId, newName);
+    if (res.data) {
+      setAssets((prev) => prev.map((a) => (a.id === assetId ? { ...a, name: newName } : a)));
+    }
+  };
+
+  const handleCreateFolder = async (name: string) => {
+    const res = await createFolder(name);
+    if (res.data) {
+      setFolders((prev) => [...prev, res.data!]);
     }
   };
 
@@ -325,6 +338,8 @@ function UploadsWorkspaceWrapper() {
       onFilterChange={setFilter}
       onUploadSuccess={handleUploadSuccess}
       onDeleteAsset={handleDeleteAsset}
+      onRenameAsset={handleRenameAsset}
+      onCreateFolder={handleCreateFolder}
       isLoading={isLoading}
     />
   );
