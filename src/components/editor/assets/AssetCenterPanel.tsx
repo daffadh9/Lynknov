@@ -1,5 +1,5 @@
 "use client";
-
+// Asset Library — global workspace (not editor subfeature)
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
