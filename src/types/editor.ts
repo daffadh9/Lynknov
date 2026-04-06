@@ -31,6 +31,7 @@ export interface HeroSection extends BaseSection {
     primaryCta?: { label: string; url: string; };
     secondaryCta?: { label: string; url: string; };
     avatarUrl?: string;
+    avatarAssetId?: string;
     badgeText?: string;
     trustText?: string;
     isVerified?: boolean;
@@ -107,7 +108,7 @@ export interface ShowcaseSection extends BaseSection {
   content: {
     title: string;
     description: string;
-    items: { id: string; title: string; type: string; price?: string; description?: string; ctaText?: string; imageUrl?: string; link?: string }[];
+    items: { id: string; title: string; type: string; price?: string; description?: string; ctaText?: string; imageUrl?: string; imageAssetId?: string; link?: string }[];
   };
   style: {
     layout: "cards" | "list" | "grid";
@@ -127,7 +128,7 @@ export interface StoryboardSection extends BaseSection {
   content: {
     title: string;
     description?: string;
-    items: { id: string; date: string; title: string; content: string; status: string; imageUrl?: string }[];
+    items: { id: string; date: string; title: string; content: string; status: string; imageUrl?: string; imageAssetId?: string }[];
   };
   style: {
     layout: "timeline" | "cards";
@@ -145,7 +146,7 @@ export interface PortfolioSection extends BaseSection {
   content: {
     title: string;
     description: string;
-    items: { id: string; title: string; category: string; description: string; imageUrl?: string; link?: string }[];
+    items: { id: string; title: string; category: string; description: string; imageUrl?: string; thumbnailAssetId?: string; link?: string }[];
   };
   style: {
     layout: "featured" | "grid" | "list";

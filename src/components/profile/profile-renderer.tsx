@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import type { EditorSection } from "@/types/editor";
+import { type EditorSection, type SectionType } from "@/types/editor";
 import { HeroSection } from "./sections/hero-section";
 import { AboutSection } from "./sections/about-section";
 import { ShowcaseSection } from "./sections/showcase-section";
@@ -56,10 +56,10 @@ export function ProfileRenderer({
   activeSectionId,
 }: ProfileRendererProps) {
   const sectionMap = new Map(
-    sectionDescriptors?.map((section) => [section.type, section]) ?? [],
+    sectionDescriptors?.map((section) => [section.type as SectionType, section]) ?? [],
   );
 
-  const sectionMeta = (sectionType: string) => sectionMap.get(sectionType);
+  const sectionMeta = (sectionType: string) => sectionMap.get(sectionType as SectionType);
 
   return (
     <div className="flex w-full flex-col overflow-x-hidden">

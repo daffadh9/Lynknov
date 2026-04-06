@@ -6,7 +6,7 @@ import {
   Monitor, Focus, AlignLeft, AlignCenter, AlignRight, ShieldCheck, 
   CheckCircle2, MousePointer2, Paintbrush
 } from "lucide-react";
-import { ImageUpload } from "../media/image-upload";
+import { SectionAssetField } from "../assets/SectionAssetField";
 import { Field, TextInput, Textarea, SegmentControl, Toggle, SectionGroup } from "../editor-ui";
 
 interface HeroEditorProps {
@@ -33,12 +33,19 @@ export function HeroContentEditor({ section, onChange }: HeroEditorProps) {
   return (
     <div className="space-y-12">
       <SectionGroup title="Media Utama" icon={LayoutTemplate}>
-        <ImageUpload
+        <SectionAssetField
           label="Avatar / Foto Profil"
-          value={c.avatarUrl || ""}
-          onChange={(url) => upd("avatarUrl", url)}
-          recommendedSize="Min. 400×400px · PNG/WebP"
-          shape={section.style?.avatarShape === "circle" ? "circle" : "square"}
+          description="Min. 400×400px · PNG/WebP"
+          valueUrl={c.avatarUrl || ""}
+          valueAssetId={c.avatarAssetId || ""}
+          onChange={(url, assetId) => {
+            onChange({
+              ...section,
+              content: { ...c, avatarUrl: url, avatarAssetId: assetId }
+            });
+          }}
+          defaultCategory="avatar"
+          allowedKinds={["image"]}
         />
       </SectionGroup>
 

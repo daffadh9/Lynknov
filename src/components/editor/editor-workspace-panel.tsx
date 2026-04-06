@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Image as ImageIcon, Upload, WandSparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { WandSparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
-  getAssetOverview,
   getPageCompletion,
 } from "@/lib/editor-progress";
 import type {
@@ -15,6 +14,9 @@ import type {
   EditorWorkspaceState,
 } from "@/types/editor";
 import { SectionEditorPanel } from "./section-editor-panel";
+import { AssetCenterPanel } from "./assets/AssetCenterPanel";
+import { fetchAssets, fetchFolders, deleteAsset } from "@/features/assets/actions";
+import type { AssetFilter, AssetFolder, UserAsset } from "@/types/assets";
 
 interface EditorWorkspacePanelProps {
   workspace: "sections" | "uploads" | "audio" | "theme" | "settings";
@@ -280,84 +282,51 @@ function buildAssetEntries(sections: EditorSection[]): AssetEntry[] {
 
 // ── Workspaces ──────────────────────────────────────────────────────────────────
 
-function UploadsWorkspace({ sections }: { sections: EditorSection[] }) {
-  const [filter, setFilter] = useState<UploadFilter>("all");
-  const assets = getAssetOverview(sections);
-  const entries = buildAssetEntries(sections);
-  const filtered = filter === "all" ? entries : entries.filter((e) => e.category === filter);
+function UploadsWorkspaceWrapper() {
+  const [assets, setAssets] = useState<UserAsset[]>([]);
+  const [folders, setFolders] = useState<AssetFolder[]>([]);
+  const [filter, setFilter] = useState<AssetFilter>({ category: "all" });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    const [assetsRes, foldersRes] = await Promise.all([
+      fetchAssets(filter),
+      fetchFolders(),
+    ]);
+    if (assetsRes.data) setAssets(assetsRes.data);
+    if (foldersRes.data) setFolders(foldersRes.data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [filter]);
+
+  const handleUploadSuccess = (newAsset: UserAsset) => {
+    setAssets((prev) => [newAsset, ...prev]);
+  };
+
+  const handleDeleteAsset = async (assetId: string) => {
+    const res = await deleteAsset(assetId);
+    if (res.success) {
+      setAssets((prev) => prev.filter((a) => a.id !== assetId));
+    } else {
+      // TODO: Handle delete warning in future step
+      console.error(res.error);
+    }
+  };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
-      <WorkspaceHeader
-        title="Unggahan"
-        meta={[`${assets.totalAssets} aset`]}
-      />
-      <div className="custom-scrollbar flex-1 overflow-y-auto px-6 py-6 space-y-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <button className="inline-flex h-9 items-center gap-2 rounded-lg bg-emerald-500/10 px-4 text-[12px] font-bold text-emerald-400 ring-1 ring-inset ring-emerald-500/20 transition-all hover:bg-emerald-500/20">
-            <Upload className="h-3.5 w-3.5" />
-            Unggah File
-          </button>
-          <Choices
-            value={filter}
-            onChange={setFilter}
-            options={[
-              { value: "all", label: "Semua" },
-              { value: "avatar", label: "Avatar" },
-              { value: "showcase", label: "Showcase" },
-              { value: "project", label: "Project" },
-            ]}
-          />
-        </div>
-
-        <div className="grid gap-6 xl:grid-cols-[1fr_280px]">
-          <div className="space-y-4">
-            {filtered.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.05] bg-white/[0.01] px-4 py-16 text-center">
-                <ImageIcon className="h-8 w-8 text-white/10" />
-                <p className="mt-4 text-[12px] text-white/20 font-medium">Belum ada aset</p>
-              </div>
-            ) : (
-              <div className="grid gap-2">
-                {filtered.map((entry) => (
-                  <div
-                    key={entry.id}
-                    className="group flex items-center justify-between gap-4 rounded-xl border border-white/[0.04] bg-white/[0.02] p-3 transition-all hover:bg-white/[0.04]"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="h-10 w-10 shrink-0 rounded-lg bg-white/[0.05]" />
-                      <div className="min-w-0">
-                        <p className="truncate text-[12px] font-bold text-white/80">{entry.title}</p>
-                        <p className="text-[11px] text-white/20 font-medium">{entry.usage}</p>
-                      </div>
-                    </div>
-                    <span className="rounded-full bg-white/[0.05] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/30">
-                      {entry.category}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.1em] text-white/20">Ringkasan</p>
-              <div className="space-y-3">
-                <Row label="Avatar" value={`${assets.avatarAssets}`} />
-                <Row label="Showcase" value={`${assets.galleryAssets}`} />
-                <Row label="Project" value={`${assets.projectAssets}`} />
-                <Row
-                  label="Status"
-                  value={assets.totalAssets > 0 ? "Terisi" : "Kosong"}
-                  tone={assets.totalAssets > 0 ? "success" : "warning"}
-                />
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
-    </div>
+    <AssetCenterPanel
+      assets={assets}
+      folders={folders}
+      filter={filter}
+      onFilterChange={setFilter}
+      onUploadSuccess={handleUploadSuccess}
+      onDeleteAsset={handleDeleteAsset}
+      isLoading={isLoading}
+    />
   );
 }
 
@@ -636,7 +605,7 @@ export function EditorWorkspacePanel({
     );
   }
   if (workspace === "uploads") {
-    return <UploadsWorkspace sections={sections} />;
+    return <UploadsWorkspaceWrapper />;
   }
   if (workspace === "audio") {
     return (

@@ -82,7 +82,7 @@ export async function getEditorData(): Promise<{
     return {
       id: section.id,
       type: actualType as EditorSection["type"],
-      label: actualType.charAt(0).toUpperCase() + actualType.slice(1).replace('_', ' '),
+      label: String(actualType).charAt(0).toUpperCase() + String(actualType).slice(1).replace('_', ' '),
       order: section.position,
       isEnabled: section.is_visible,
       content,

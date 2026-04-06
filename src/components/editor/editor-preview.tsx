@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Monitor, Smartphone, Tablet, Layout, Minus, Plus } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import type { EditorSection } from "@/types/editor";
 import { EditorStructuralPreview } from "./editor-structural-preview";
@@ -162,7 +162,7 @@ export function EditorPreview(props: EditorPreviewProps) {
   
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const mockupContentRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<ResizeObserver | null>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [mockupContentHeight, setMockupContentHeight] = useState(0);
   const [scrollMode, setScrollMode] = useState<ScrollMode>("content");
@@ -191,19 +191,23 @@ export function EditorPreview(props: EditorPreviewProps) {
     return () => observer.disconnect();
   }, []);
 
-  // Observasi tinggi konten natural DI DALAM mockup (setelah unclamped).
-  // Dipakai HANYA saat scrollMode === "device" untuk menentukan tinggi wrapper
-  // supaya seluruh mockup memanjang mengikuti konten → outer canvas scroll aktif.
-  useEffect(() => {
-    const el = mockupContentRef.current;
-    if (!el) return;
-    const observer = new ResizeObserver(([entry]) => {
-      if (!entry) return;
-      setMockupContentHeight(entry.contentRect.height);
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [device, scrollMode]);
+  // Observasi tinggi konten natural DI DALAM mockup menggunakan callback ref.
+  // PENTING: Karena `motion.div` menggunakan `key={device}`, elemen DOM akan
+  // ter-unmount dan re-mount setiap kali device berubah. Callback ref memastikan
+  // ResizeObserver selalu terhubung ke node DOM yang baru.
+  const mockupContentRefCallback = useCallback((node: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (node) {
+      observerRef.current = new ResizeObserver(([entry]) => {
+        if (!entry) return;
+        setMockupContentHeight(entry.contentRect.height);
+      });
+      observerRef.current.observe(node);
+    }
+  }, []);
 
   // ── SIZING LOGIC: RING-AWARE FIT + ORTHOGONAL ZOOM ───────────────────────
   // innerW/innerH = bounding box VISUAL mockup (termasuk ring + shadow spread).
@@ -231,28 +235,34 @@ export function EditorPreview(props: EditorPreviewProps) {
     // Manual zoom overrides fit. Dibiarkan literal (100% = 1.0x actual).
     // Container luar akan otomatis scroll lewat overflow-auto kalau mockup > container.
     if (zoomLevel !== "fit") {
-      return zoomLevel / 100;
+      let zoomScale = zoomLevel / 100;
+      // Cap zoom scale untuk desktop focus-preview agar tidak terlalu sesak.
+      if (device === "desktop" && layoutMode === "focus-preview") {
+        zoomScale = Math.min(zoomScale, 0.94);
+      }
+      return zoomScale;
     }
 
     // Fit mode: scale bergantung pada scrollMode.
     // - content: mockup WAJIB muat utuh (width & height), konten di dalam yang scroll.
     // - device : mockup pakai fitScaleX murni (tinggi dinamis mengikuti konten),
     //            tinggi yang overflow ditangani oleh outer canvas scroll.
-    // Cap 1.0 agar tidak upscaling ugly di layar besar saat focus-preview.
-    if (scrollMode === "device") {
-      return Math.min(fitScaleX, 1);
-    }
-    return Math.min(fitScaleX, fitScaleY, 1);
-  }, [containerSize, innerW, innerH, layoutMode, scrollMode, zoomLevel]);
+    // Cap wajar agar tidak upscaling ugly di layar besar.
+    let fitScale = scrollMode === "device" ? fitScaleX : Math.min(fitScaleX, fitScaleY);
+    
+    // Global max cap 1.0 (actual size), kecuali desktop focus-preview dipresisi ke 0.94.
+    const maxCap = (device === "desktop" && layoutMode === "focus-preview") ? 0.94 : 1.0;
+    return Math.min(fitScale, maxCap);
+  }, [containerSize, innerW, innerH, layoutMode, scrollMode, zoomLevel, device]);
 
   // Tinggi "logis" motion.div sebelum scale.
   // - content mode: tetap innerH (device height fisik, konten scroll di dalam).
-  // - device mode : max(innerH, mockupContentHeight + overhead*2) agar mockup
-  //                 memanjang menelan seluruh konten (mockupContentHeight dari
-  //                 ResizeObserver). Outer canvas scroll akan muncul otomatis
-  //                 jika tinggi wrapper (= logicalH * scale) > canvas height.
+  // - device mode : max(innerH, mockupContentHeight + chromeHeight + overhead*2)
+  //                 agar mockup memanjang menelan seluruh konten.
+  //                 chromeHeight: Desktop browser bar (48px).
+  const chromeHeight = device === "desktop" ? 48 : 0;
   const logicalH = scrollMode === "device"
-    ? Math.max(400, mockupContentHeight + currentPreset.overhead * 2)
+    ? Math.max(innerH, mockupContentHeight + chromeHeight + currentPreset.overhead * 2)
     : innerH;
 
   return (
@@ -301,12 +311,14 @@ export function EditorPreview(props: EditorPreviewProps) {
         >
           <div
             className={cn(
-              "min-w-full min-h-full flex items-center justify-center",
+              "min-w-full min-h-full flex flex-col items-center",
               layoutMode === "focus-preview" ? "p-12" : "p-6"
             )}
           >
+            {/* my-auto ensures the mockup centers when smaller than viewport, 
+                but aligns to top (preventing clipping) when taller. */}
             <div
-              className="relative shrink-0"
+              className="relative shrink-0 my-auto"
               style={{
                 width: innerW * scale,
                 height: logicalH * scale,
@@ -384,14 +396,15 @@ export function EditorPreview(props: EditorPreviewProps) {
                       )}
                     >
                       <div
-                        ref={mockupContentRef}
+                        ref={mockupContentRefCallback}
                         className={cn(
+                          // SENGAJA TANPA min-h-full di mode apapun. Inner div selalu =
+                          // natural content height → ResizeObserver selalu report tinggi
+                          // aktual, tidak pernah stale. Fix initial scroll-mockup cutoff.
+                          // Background visual di mode content ditangani oleh parent
+                          // scrollContainerRef (bg-[#030303]), jadi tidak butuh min-h-full.
                           "w-full",
-                          // min-h-full hanya saat content-scroll supaya inner mengisi viewport.
-                          // Di device-scroll, tinggi PURE content-driven untuk memutus
-                          // loop feedback ResizeObserver → logicalH → viewport → min-h-full.
-                          scrollMode === "content" && "min-h-full",
-                          // If mobile, add padding top for the notch
+                          // Padding top untuk notch di mobile.
                           device === "mobile" ? "pt-12" : ""
                         )}
                       >

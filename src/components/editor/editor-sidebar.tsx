@@ -42,7 +42,7 @@ interface EditorSidebarProps {
 
 const WORKSPACES = [
   { key: "sections", label: "Struktur Halaman", shortLabel: "Pages", icon: LayoutGrid },
-  { key: "uploads", label: "Media & Aset", shortLabel: "Media", icon: ImageIcon },
+  { key: "uploads", label: "Pusat Aset", shortLabel: "Aset", icon: ImageIcon },
   { key: "audio", label: "Audio & Musik", shortLabel: "Audio", icon: AudioLines },
   { key: "theme", label: "Tema & Visual", shortLabel: "Theme", icon: Palette },
   { key: "settings", label: "Pengaturan Site", shortLabel: "Setup", icon: Settings },
@@ -170,7 +170,10 @@ export function EditorSidebar({
                   <activeWorkspaceMeta.icon className="h-6 w-6 text-white/10" />
                 </div>
                 <p className="text-[11px] font-bold uppercase tracking-widest text-white/20">
-                  {activeWorkspaceMeta.shortLabel} Panel Active
+                  {activeWorkspaceMeta.label}
+                </p>
+                <p className="text-[10px] text-white/30 mt-2 max-w-[150px] leading-relaxed">
+                  Gunakan panel di sebelah kanan untuk mengelola konfigurasi {activeWorkspaceMeta.shortLabel.toLowerCase()}.
                 </p>
               </div>
             )}

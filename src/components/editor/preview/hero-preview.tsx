@@ -31,14 +31,16 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
 
   // Layout stacking: mobile + tablet + alignment center → stacked column (flex-col).
   // Verified badge slot:
-  // - stacked mode : DEDICATED row tersendiri di antara badge row dan name row.
-  //                  Tidak share dengan badge row atau name row → tidak akan pernah
-  //                  bentrok dengan nama user sepanjang apapun.
+  // - stacked mode : INLINE di samping badge text ("OPEN FOR COLLAB"). Badge row
+  //                  selalu render jika showBadge || showVerified, jadi verified
+  //                  tetap tampil walau badgeText kosong.
   // - desktop non-stacked : inline sibling di h1 (seperti centang IG).
   const isCenterAlign = alignment === "center";
+  const isLeftAlign = alignment === "left";
   const isStacked = isMobile || isTablet || isCenterAlign;
-  const showVerifiedStandalone = showVerified && isStacked;
+  const showVerifiedInBadgeRow = showVerified && isStacked;
   const showVerifiedInNameRow = showVerified && !isStacked;
+  const badgeRowVisible = (showBadge && !!content.badgeText) || showVerifiedInBadgeRow;
 
   const palette = {
     emerald: { text: "text-emerald-400", bg: "bg-emerald-500", border: "border-emerald-500/20", glow: "rgba(16,185,129,0.15)", strongGlow: "rgba(16,185,129,0.4)", gradient: "from-emerald-500/20" },
@@ -73,23 +75,44 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
 
   // Tablet sekarang ikut stacked (kolom) sama seperti mobile — lebar 820px terlalu
   // sempit untuk 2-kolom dengan headline besar; hasil 2-kolom rapuh dan gampang pecah.
+  // Non-stacked (desktop only) pakai flex-row dengan constraint yang SUM-AMAN:
+  // identity flex-shrink-0 max 380, text flex-1 min-w-0 max 560, gap-10, container
+  // px-16 → total 380+40+560=980 ≤ 1024 (1152−128). Tidak akan overflow.
+  // Container: stacked flex-col dengan items-* mengikuti alignment, bukan
+  // force items-center. Non-stacked tetap flex-row/row-reverse.
   const containerLayout = isStacked
-    ? "flex-col items-center justify-center text-center"
+    ? cn(
+        "flex-col justify-center",
+        isRight ? "items-end" : isLeftAlign ? "items-start" : "items-center"
+      )
     : isRight
       ? "flex-row items-center justify-between"
       : "flex-row-reverse items-center justify-between";
 
-  // Saat stacked, kedua cluster pakai full width (dibatasi container max-w),
-  // tidak lagi split 44/54 yang menyebabkan kata pecah di tablet.
   const identityColWidth = isStacked
     ? "w-full"
-    : "w-[42%] max-w-[460px] px-8 lg:px-16";
+    : "flex-shrink-0 w-auto max-w-[380px]";
   const textColWidth = isStacked
     ? "w-full max-w-2xl"
-    : "w-[56%] max-w-[620px] pr-8 lg:pr-12";
+    : "flex-1 min-w-0 max-w-[560px]";
 
-  const identityAlign = isStacked ? "items-center text-center" : isRight ? "items-start text-left" : "items-end text-right";
-  const textAlign = isStacked ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left";
+  // Alignment mapping:
+  // - stacked (flex-col): items-* mengatur horizontal alignment anak, text-*
+  //   mengatur rata teks. KEDUANYA harus mengikuti value `alignment` dari panel,
+  //   bukan dipaksa center. Ini fix utama bug "toggle kiri/kanan tidak berpengaruh".
+  // - non-stacked (flex-row/row-reverse): identity & text kolom berdampingan,
+  //   text-align tiap kolom tetap follow alignment direction.
+  const stackedAlign = isRight
+    ? "items-end text-right"
+    : isLeftAlign
+      ? "items-start text-left"
+      : "items-center text-center";
+  const identityAlign = isStacked
+    ? stackedAlign
+    : isRight ? "items-start text-left" : "items-end text-right";
+  const textAlign = isStacked
+    ? stackedAlign
+    : isRight ? "items-end text-right" : "items-start text-left";
 
   const isLightMode = style.backgroundVariant === "editorial-light";
 
@@ -216,45 +239,40 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
           )}
 
           {/* IDENTITY TEXT CLUSTER
-              Hirarki final: [Badge (opsional)] → [Verified standalone (stacked)] → [Nama] → [Role]
-              Gap antar elemen lebih lega (gap-2) supaya di mobile tidak terlihat padat. */}
+              Hirarki: [Badge row: badgeText + verified (inline)] → [Nama] → [Role]
+              Verified SATU BARIS dengan badge text di stacked mode, shrink-0 supaya
+              tidak ditindih badgeText saat narrow. Badge row selalu render jika
+              ada badgeText ATAU verified aktif (tidak bergantung satu sama lain). */}
           <div className={cn("flex flex-col gap-2 w-full", identityAlign)}>
             
-            {showBadge && content.badgeText && (
+            {badgeRowVisible && (
               <div
                 className={cn(
-                  "w-full flex items-center",
-                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
+                  "w-full flex items-center gap-2",
+                  isStacked
+                    ? (isRight ? "justify-end" : isLeftAlign ? "justify-start" : "justify-center")
+                    : (isRight ? "justify-start" : "justify-end")
                 )}
               >
-                <span
-                  className={cn(
-                    "font-black uppercase tracking-[0.18em]",
-                    isMobile ? "text-[9px]" : isTablet ? "text-[11px]" : "text-[13px]",
-                    currentAccent.text
-                  )}
-                >
-                  {content.badgeText}
-                </span>
-              </div>
-            )}
-
-            {/* DEDICATED VERIFIED ROW (stacked mode only).
-                Independen dari badge — tetap tampil walau user tidak pasang badgeText.
-                Fully terpisah dari name row, jadi TIDAK MUNGKIN bentrok dengan nama. */}
-            {showVerifiedStandalone && (
-              <div
-                className={cn(
-                  "w-full flex items-center",
-                  isStacked ? "justify-center" : isRight ? "justify-start" : "justify-end"
+                {showBadge && content.badgeText && (
+                  <span
+                    className={cn(
+                      "font-black uppercase tracking-[0.18em] min-w-0 truncate",
+                      isMobile ? "text-[9px]" : isTablet ? "text-[11px]" : "text-[13px]",
+                      currentAccent.text
+                    )}
+                  >
+                    {content.badgeText}
+                  </span>
                 )}
-              >
-                <VerifiedIcon
-                  className={cn(
-                    "drop-shadow-[0_0_12px_rgba(56,151,240,0.5)]",
-                    isMobile ? "w-[18px] h-[18px]" : "w-[22px] h-[22px]"
-                  )}
-                />
+                {showVerifiedInBadgeRow && (
+                  <VerifiedIcon
+                    className={cn(
+                      "shrink-0 drop-shadow-[0_0_10px_rgba(56,151,240,0.45)]",
+                      isMobile ? "w-[14px] h-[14px]" : isTablet ? "w-[17px] h-[17px]" : "w-[19px] h-[19px]"
+                    )}
+                  />
+                )}
               </div>
             )}
             
@@ -269,7 +287,7 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
               <h1
                 className={cn(
                   "font-black tracking-tight leading-[1.15] w-full break-words line-clamp-2",
-                  "text-center",
+                  isRight ? "text-right" : isLeftAlign ? "text-left" : "text-center",
                   isMobile ? "text-[1.1rem]" : isTablet ? "text-[1.45rem]" : "text-[2rem]",
                   isLightMode ? "text-black" : "text-white"
                 )}
@@ -344,7 +362,10 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
           <div className={cn(
             "flex flex-wrap items-center w-full",
             isMobile ? "gap-2" : "gap-3",
-            isStacked ? "justify-center" : isRight ? "justify-end" : "justify-start" 
+            // CTA row ikut alignment di semua mode (stacked maupun non-stacked).
+            isStacked
+              ? (isRight ? "justify-end" : isLeftAlign ? "justify-start" : "justify-center")
+              : (isRight ? "justify-end" : "justify-start")
           )}>
             <button className={cn(
               "rounded-xl font-black uppercase tracking-widest transition-all active:scale-95",
@@ -371,7 +392,9 @@ export function HeroPreview({ section, device = "desktop" }: HeroPreviewProps) {
               // Truncate hanya mobile; di tablet/desktop biarkan kalimat utuh.
               isMobile && "truncate",
               isMobile ? "mt-6 text-[9px]" : isTablet ? "mt-8 text-[10px]" : "mt-10 text-[11px]",
-              isStacked ? "justify-center" : isRight ? "justify-end" : "justify-start"
+              isStacked
+                ? (isRight ? "justify-end" : isLeftAlign ? "justify-start" : "justify-center")
+                : (isRight ? "justify-end" : "justify-start")
             )}>
               <div className={cn("bg-current shrink-0", isMobile ? "w-4 h-[1px]" : "w-6 h-[1px]")} />
               <span className={cn(isMobile && "truncate")}>{content.trustText}</span>
