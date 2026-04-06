@@ -498,10 +498,13 @@ function AssetCard({ asset, isSelected, isNew, onSelect }: { asset: UserAsset; i
   const mockInUse = asset.id.charAt(0) <= "5";
 
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onSelect}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(); }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[10px] border transition-all duration-150",
+        "group relative flex cursor-pointer flex-col overflow-hidden rounded-[10px] border transition-all duration-150",
         isSelected
           ? "border-[rgba(16,185,129,0.4)] bg-[#161619] shadow-[0_0_0_3px_rgba(16,185,129,0.08)] -translate-y-0"
           : "border-[rgba(255,255,255,0.06)] bg-[#111114] hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.12)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.5)]"
@@ -577,7 +580,7 @@ function AssetCard({ asset, isSelected, isNew, onSelect }: { asset: UserAsset; i
           {asset.file_size ? ` · ${(asset.file_size / 1024 / 1024).toFixed(1)} MB` : ""}
         </p>
       </div>
-    </button>
+    </div>
   );
 }
 
