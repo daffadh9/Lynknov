@@ -290,7 +290,7 @@ export default function EditorPage() {
                 )}
               </main>
 
-              {((layoutMode === "balanced") || (layoutMode === "focus-edit" && showFocusEditPreview)) && isPreviewVisible && (
+              {activeWorkspace !== "uploads" && ((layoutMode === "balanced") || (layoutMode === "focus-edit" && showFocusEditPreview)) && isPreviewVisible && (
                 <>
                   <div
                     onMouseDown={() => setIsResizing(layoutMode === "focus-edit" ? "focus-edit-preview" : "right")}
