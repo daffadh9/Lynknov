@@ -223,6 +223,7 @@ export default function EditorPage() {
         totalSections={pageProgress.totalSections}
         activeLayoutPreset={layoutMode}
         pageStatus={workspaceState.page.status}
+        activeWorkspace={activeWorkspace}
       />
 
       <div ref={layoutRef} className="relative flex flex-1 overflow-hidden">

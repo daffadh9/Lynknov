@@ -27,6 +27,7 @@ interface EditorTopbarProps {
   totalSections: number;
   activeLayoutPreset: LayoutPreset;
   pageStatus: "draft" | "published";
+  activeWorkspace?: string;
 }
 
 const LAYOUT_PRESETS: Array<{
@@ -51,7 +52,9 @@ export function EditorTopbar({
   totalSections,
   activeLayoutPreset,
   pageStatus,
+  activeWorkspace,
 }: EditorTopbarProps) {
+  const isAssetLibrary = activeWorkspace === "uploads";
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -92,64 +95,78 @@ export function EditorTopbar({
         </div>
       </div>
 
-      <div className="hidden items-center gap-2 xl:flex">
-        <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/[0.08]">
-          {LAYOUT_PRESETS.map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => onApplyLayoutPreset(key)}
-              className={cn(
-                "rounded-lg px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all",
-                activeLayoutPreset === key
-                  ? "bg-white/[0.12] text-white shadow-lg ring-1 ring-white/[0.12]"
-                  : "text-white/30 hover:text-white/60"
-              )}
-            >
-              {label}
-            </button>
-          ))}
+      {isAssetLibrary ? (
+        <div className="hidden items-center gap-3 xl:flex">
+          <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 px-4 py-2 ring-1 ring-inset ring-emerald-500/20">
+            <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400">Asset Library</span>
+          </div>
+          <span className="text-[11px] text-white/20">Kelola bahan baku seluruh workspace Lynknov</span>
         </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="mr-2 hidden flex-col items-end text-[10px] font-black uppercase tracking-[0.15em] text-white/30 sm:flex">
-          <div className="flex items-center gap-2.5">
-            <span className={cn(hasChanges ? "text-amber-400/80" : "text-emerald-400/80")}>
-              {hasChanges ? "Unsaved Changes" : "All Changes Saved"}
-            </span>
-            <div className={cn("h-1.5 w-1.5 rounded-full", hasChanges ? "bg-amber-500" : "bg-emerald-500")} />
+      ) : (
+        <div className="hidden items-center gap-2 xl:flex">
+          <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/[0.08]">
+            {LAYOUT_PRESETS.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => onApplyLayoutPreset(key)}
+                className={cn(
+                  "rounded-lg px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-all",
+                  activeLayoutPreset === key
+                    ? "bg-white/[0.12] text-white shadow-lg ring-1 ring-white/[0.12]"
+                    : "text-white/30 hover:text-white/60"
+                )}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
+      )}
 
-        <div className="h-8 w-px bg-white/[0.08]" />
+      <div className="flex items-center gap-4">
+        {!isAssetLibrary && (
+          <>
+            <div className="mr-2 hidden flex-col items-end text-[10px] font-black uppercase tracking-[0.15em] text-white/30 sm:flex">
+              <div className="flex items-center gap-2.5">
+                <span className={cn(hasChanges ? "text-amber-400/80" : "text-emerald-400/80")}>
+                  {hasChanges ? "Unsaved Changes" : "All Changes Saved"}
+                </span>
+                <div className={cn("h-1.5 w-1.5 rounded-full", hasChanges ? "bg-amber-500" : "bg-emerald-500")} />
+              </div>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onPreview}
-            className="group flex h-10 items-center gap-2.5 rounded-xl bg-white/[0.03] px-4 text-[12px] font-black uppercase tracking-widest text-white/70 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white"
-          >
-            <Eye className="h-4 w-4" />
-            Preview
-          </button>
+            <div className="h-8 w-px bg-white/[0.08]" />
 
-          <button
-            onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-            className="flex h-10 items-center gap-2.5 rounded-xl bg-white/[0.03] px-4 text-[12px] font-black uppercase tracking-widest text-white/70 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white disabled:opacity-20"
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
-          </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onPreview}
+                className="group flex h-10 items-center gap-2.5 rounded-xl bg-white/[0.03] px-4 text-[12px] font-black uppercase tracking-widest text-white/70 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white"
+              >
+                <Eye className="h-4 w-4" />
+                Preview
+              </button>
 
-          <button
-            onClick={handlePublish}
-            disabled={!hasChanges || isPublishing}
-            className="flex h-10 items-center gap-3 rounded-xl bg-emerald-500 px-5 text-[12px] font-black uppercase tracking-[0.15em] text-[#050505] transition-all hover:bg-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] disabled:opacity-40"
-          >
-            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-            Publish
-          </button>
-        </div>
+              <button
+                onClick={handleSave}
+                disabled={!hasChanges || isSaving}
+                className="flex h-10 items-center gap-2.5 rounded-xl bg-white/[0.03] px-4 text-[12px] font-black uppercase tracking-widest text-white/70 ring-1 ring-white/[0.08] transition-all hover:bg-white/[0.08] hover:text-white disabled:opacity-20"
+              >
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save
+              </button>
+
+              <button
+                onClick={handlePublish}
+                disabled={!hasChanges || isPublishing}
+                className="flex h-10 items-center gap-3 rounded-xl bg-emerald-500 px-5 text-[12px] font-black uppercase tracking-[0.15em] text-[#050505] transition-all hover:bg-emerald-400 hover:shadow-[0_0_25px_rgba(16,185,129,0.4)] disabled:opacity-40"
+              >
+                {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                Publish
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </header>
   );
