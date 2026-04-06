@@ -4,10 +4,9 @@ import { useCallback, useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import {
-  UploadCloud, Image as ImageIcon, Music, Link as LinkIcon, FolderPlus,
-  Search, AlertCircle, X, Check, Eye, FileText, LayoutGrid, LayoutList,
-  Plus, Download, ExternalLink, Folder, Tag, Trash2, ArrowRight,
-  ChevronDown, MoreVertical, Layers
+  UploadCloud, Image as ImageIcon, Music, Link as LinkIcon,
+  Search, AlertCircle, X, Check, FileText, LayoutGrid, LayoutList,
+  Download, ExternalLink, Folder, Tag, Trash2, ArrowRight, Layers
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useDropzone } from "react-dropzone";
