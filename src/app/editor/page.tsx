@@ -90,7 +90,7 @@ export default function EditorPage() {
     return () => observer.disconnect();
   }, []);
 
-  const isSidebarVisible = layoutMode === "balanced";
+  const isSidebarVisible = layoutMode === "balanced" && activeWorkspace !== "uploads";
   const isEditorVisible = layoutMode !== "focus-preview";
   const isPreviewVisible = layoutMode !== "focus-edit" || showFocusEditPreview;
 
